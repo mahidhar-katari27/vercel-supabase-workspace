@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Card, Chip, Counter, DemoTag, PageHeader, Progress, Reveal } from '@/components/ui'
+import NearbyServices from '@/components/maps/NearbyServices'
 import { Donut, LineChart } from '@/components/charts'
 import { aquaCosts, aquaMarket, aquaPonds, aquaSummary } from '@/lib/data'
 import { cn, inr, num } from '@/lib/utils'
@@ -215,6 +216,17 @@ export default function AquaPage() {
         <Link href="/experts" className="btn btn-ghost">👨‍🔬 Talk to an aqua expert</Link>
         <Link href="/finance" className="btn btn-quiet">💰 Overall finances</Link>
       </div>
+
+      <div className="mt-10">
+        <NearbyServices
+          categories={['aqua', 'vet']}
+          title="Aqua services near you"
+          icon="🐟"
+          subtitle="Feed, hatcheries and advisory services for ponds and tanks"
+          limit={6}
+        />
+      </div>
+
     </div>
   )
 }

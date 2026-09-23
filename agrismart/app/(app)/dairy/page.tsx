@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Card, Chip, Counter, DemoTag, PageHeader, Progress, Reveal } from '@/components/ui'
+import NearbyServices from '@/components/maps/NearbyServices'
 import { BarChart, LineChart } from '@/components/charts'
 import { dairySummary as d, dairyWeek } from '@/lib/data'
 import { inr, num } from '@/lib/utils'
@@ -177,6 +178,17 @@ export default function DairyPage() {
         <Link href="/learn" className="btn btn-ghost">📚 Ration balancing guide</Link>
         <Link href="/schemes" className="btn btn-quiet">🏛️ Dairy subsidy schemes</Link>
       </div>
+
+      <div className="mt-10">
+        <NearbyServices
+          categories={['dairy', 'vet']}
+          title="Dairy & veterinary services near you"
+          icon="🐄"
+          subtitle="Chilling centres, co-op societies and livestock vets around your farm"
+          limit={6}
+        />
+      </div>
+
     </div>
   )
 }

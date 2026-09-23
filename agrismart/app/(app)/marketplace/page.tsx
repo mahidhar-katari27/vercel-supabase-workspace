@@ -1,11 +1,15 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Card, Chip, DemoTag, Modal, PageHeader, Reveal, spring, Stepper } from '@/components/ui'
 import { categories, listings, type Listing } from '@/lib/data'
 import { cn, inr } from '@/lib/utils'
+import LocationPickerModal from '@/components/maps/LocationPickerModal'
+import { geoForListing, getListingLocation, setListingLocation } from '@/lib/places'
+import { directionsUrl, formatKm, haversineKm } from '@/lib/geo'
+import { farmer } from '@/lib/data'
 
 const sorts = [
   { id: 'popular', label: 'Most trusted' },
@@ -34,6 +38,18 @@ export default function MarketplacePage() {
   const [mine, setMine] = useState<Row[]>([])
   const [err, setErr] = useState<string | null>(null)
   const [contact, setContact] = useState<Row | null>(null)
+  const [draftLoc, setDraftLoc] = useState<{ lat: number; lng: number; address: string } | null>(null)
+  const [pickLoc, setPickLoc] = useState(false)
+  const [storedLocs, setStoredLocs] = useState<Record<string, { lat: number; lng: number; address: string }>>({})
+
+  useEffect(() => {
+    const next: Record<string, { lat: number; lng: number; address: string }> = {}
+    for (const l of listings) {
+      const got = getListingLocation(l.id)
+      if (got) next[l.id] = got
+    }
+    setStoredLocs(next)
+  }, [])
 
   const catLabel = (id: string) => categories.find((c) => c.id === id)?.label ?? id
   const catIcon = (id: string) => categories.find((c) => c.id === id)?.icon ?? '🛍️'
@@ -64,9 +80,14 @@ export default function MarketplacePage() {
     setErr(null)
     if (step < 2) return setStep(step + 1)
 
+    const newId = `user-${Date.now()}`
+    if (draftLoc) {
+      setListingLocation(newId, { ...draftLoc, savedAt: new Date().toISOString() })
+      setStoredLocs((m) => ({ ...m, [newId]: draftLoc }))
+    }
     setMine((l) => [
       {
-        id: `user-${Date.now()}`,
+        id: newId,
         name: form.name.trim(),
         category: form.category,
         price: parseFloat(form.price),
@@ -82,7 +103,7 @@ export default function MarketplacePage() {
       },
       ...l,
     ])
-    setSell(false); setStep(0); setForm(emptyListing)
+    setSell(false); setStep(0); setForm(emptyListing); setDraftLoc(null)
   }
 
   return (
@@ -170,6 +191,32 @@ export default function MarketplacePage() {
                   <span aria-hidden>·</span>
                   <span>📍 {p.location}</span>
                 </p>
+                {(() => {
+                  const g = storedLocs[p.id]
+                    ? { coords: { lat: storedLocs[p.id]!.lat, lng: storedLocs[p.id]!.lng }, address: storedLocs[p.id]!.address }
+                    : geoForListing(p.id, p.location)
+                  const km = haversineKm(farmer.coords, g.coords)
+                  return (
+                    <div className="mt-2 rounded-xl bg-leaf-50 px-2.5 py-2">
+                      <p className="truncate text-[11px] font-semibold text-ink">
+                        📍 Seller location · {formatKm(km)} away
+                      </p>
+                      <div className="mt-1.5 flex gap-1.5">
+                        <Link href={`/map?lat=${g.coords.lat}&lng=${g.coords.lng}&label=${encodeURIComponent(p.seller + ' — ' + p.name)}`}
+                          className="flex-1 rounded-lg border border-line/70 bg-surface px-2 py-1 text-center text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">
+                          View on Map
+                        </Link>
+                        <Link href={`/map?lat=${g.coords.lat}&lng=${g.coords.lng}&label=${encodeURIComponent(p.name)}&route=1`}
+                          className="flex-1 rounded-lg border border-line/70 bg-surface px-2 py-1 text-center text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">
+                          🧭 Directions
+                        </Link>
+                        <a href={directionsUrl(farmer.coords, g.coords)} target="_blank" rel="noopener noreferrer"
+                          aria-label={`Open ${p.name} seller location in Google Maps`}
+                          className="rounded-lg border border-line/70 bg-surface px-2 py-1 text-[10px] font-bold text-ink hover:border-leaf-500">↗</a>
+                      </div>
+                    </div>
+                  )
+                })()}
 
                 <div className="mt-3 flex items-end justify-between gap-2">
                   <div>
@@ -266,6 +313,21 @@ export default function MarketplacePage() {
                 <span className="label">Location *</span>
                 <input className="input" value={form.location} onChange={(e) => set('location', e.target.value)} />
               </label>
+              <div className="block sm:col-span-2">
+                <span className="label">Product location (pin on map)</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button type="button" onClick={() => setPickLoc(true)} className="btn btn-ghost btn-sm">
+                    📍 {draftLoc ? 'Change pin' : 'Pick product location'}
+                  </button>
+                  {draftLoc ? (
+                    <span className="rounded-xl bg-leaf-50 px-3 py-1.5 text-[11px] font-semibold text-ink">
+                      {draftLoc.address} <span className="font-mono text-faint">({draftLoc.lat.toFixed(4)}, {draftLoc.lng.toFixed(4)})</span>
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-faint">Optional — buyers see “View on Map” and “Directions” when pinned.</span>
+                  )}
+                </div>
+              </div>
               <label className="block sm:col-span-2">
                 <span className="label">Description</span>
                 <textarea className="input min-h-[90px]" value={form.description}
@@ -341,6 +403,13 @@ export default function MarketplacePage() {
           </button>
         </div>
       </Modal>
+
+      <LocationPickerModal
+        open={pickLoc}
+        onClose={() => setPickLoc(false)}
+        title="📍 Product location"
+        onConfirm={(loc) => { setDraftLoc(loc); setPickLoc(false) }}
+      />
     </div>
   )
 }

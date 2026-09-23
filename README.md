@@ -207,6 +207,24 @@ see them — `.env.local` is gitignored and never uploaded:
 > bypasses RLS. Run `npm run guard:secrets` before deploying; it is also wired
 > up as a `predeploy` hook.
 
+## Google Maps
+
+AgriSmart 2.0 ships a full Google Maps Platform integration — Smart Map,
+Places Autocomplete search, geocoding, directions, farm & product pin pickers
+and "nearby" services on ten-plus pages.
+
+```bash
+# agrismart/.env.local
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSy...   # empty = labelled demo map
+```
+
+- **Setup, API list, key restrictions:** [`agrismart/docs/google-maps.md`](agrismart/docs/google-maps.md)
+  (also reachable in-app via any **Configure Maps** button).
+- **Schema for location-enabled records:** `agrismart/supabase/migrations/0002_location_fields.sql`
+- **No key? No problem:** every map falls back to an interactive, clearly
+  badged **DEMO MAP** with sample locations; distances become labelled
+  estimates and "Open in Google Maps" links still work keyless.
+
 ## Files
 
 | File | Purpose |

@@ -2,9 +2,15 @@
 
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, Chip, DemoTag, Modal, PageHeader, Progress, Reveal, spring } from '@/components/ui'
-import MiniMap from '@/components/MiniMap'
+import MapCanvas from '@/components/maps/MapCanvas'
+import LocationPickerModal from '@/components/maps/LocationPickerModal'
+import NearbyServices from '@/components/maps/NearbyServices'
+import type { MapMarker } from '@/components/maps/types'
+import { categoryColor } from '@/lib/googleMaps'
+import { directionsUrl } from '@/lib/geo'
+import { getFarmLocation, setFarmLocation, type StoredLocation } from '@/lib/places'
 import { farmer, irrigationTypes, lands, soilTypes, type Land } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
@@ -19,6 +25,19 @@ export default function FarmPage() {
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(empty)
   const [err, setErr] = useState<string | null>(null)
+  const [pins, setPins] = useState<Record<string, StoredLocation>>({})
+  const [picker, setPicker] = useState(false)
+
+  // Stored farm pins survive reloads (demo persistence until Supabase tables exist).
+  useEffect(() => {
+    const next: Record<string, StoredLocation> = {}
+    for (const l of list) {
+      const got = getFarmLocation(l.id)
+      if (got) next[l.id] = got
+    }
+    setPins(next)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const active = list.find((l) => l.id === selected) ?? list[0]!
   const totalAcres = list.reduce((a, l) => a + l.acres, 0)
@@ -48,6 +67,20 @@ export default function FarmPage() {
     setOpen(false)
   }
 
+  const farmMarkers: MapMarker[] = [
+    ...list.map((l) => ({
+      id: l.id,
+      lat: pins[l.id]?.lat ?? l.coords.lat,
+      lng: pins[l.id]?.lng ?? l.coords.lng,
+      icon: '🌾', color: categoryColor.farm,
+      label: `${l.name} · ${l.crop}`, sub: `${l.acres} acres`,
+      active: l.id === selected,
+    })),
+    ...(pins[selected]
+      ? [{ id: 'pin', lat: pins[selected]!.lat, lng: pins[selected]!.lng, icon: '📍', color: categoryColor.user, label: 'Farm pin', variant: 'user' as const }]
+      : []),
+  ]
+
   return (
     <div className="section">
       <PageHeader
@@ -58,6 +91,7 @@ export default function FarmPage() {
       >
         <div className="flex flex-wrap gap-2.5">
           <button onClick={() => setOpen(true)} className="btn btn-primary">+ Add New Land</button>
+          <button onClick={() => setPicker(true)} className="btn btn-ghost">📍 Select Farm Location</button>
           <Link href="/planner" className="btn btn-ghost">🗓️ Crop Planner</Link>
           <Link href="/finance" className="btn btn-ghost">💰 Farm Finance</Link>
         </div>
@@ -92,6 +126,7 @@ export default function FarmPage() {
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           <Chip tone={l.health >= 85 ? 'live' : 'demo'}>{l.health}% healthy</Chip>
+                          {pins[l.id] && <Chip tone="ok" icon="📍">Pinned</Chip>}
                           {on && <Chip tone="info">Selected</Chip>}
                         </div>
                       </div>
@@ -110,6 +145,8 @@ export default function FarmPage() {
                       </div>
 
                       <div className="mt-4 flex flex-wrap gap-2">
+                        <Link href={`/map?focus=land-${l.id}`} onClick={(e) => e.stopPropagation()} className="btn btn-ghost btn-sm">📍 View Location</Link>
+                        <a href={directionsUrl(pins[l.id] ?? l.coords, pins[l.id] ?? l.coords)} onClick={(e) => e.stopPropagation()} target="_blank" rel="noopener noreferrer" className="btn btn-quiet btn-sm">🧭 Directions</a>
                         <Link href="/crop-doctor" onClick={(e) => e.stopPropagation()} className="btn btn-ghost btn-sm">🤖 Check crop health</Link>
                         <Link href="/weather" onClick={(e) => e.stopPropagation()} className="btn btn-quiet btn-sm">🌦️ Weather here</Link>
                         <Link href="/finance" onClick={(e) => e.stopPropagation()} className="btn btn-quiet btn-sm">💰 Costs</Link>
@@ -138,17 +175,20 @@ export default function FarmPage() {
                 <h2 className="text-sm font-bold">Farm locations</h2>
                 <Link href="/map" className="text-xs font-bold text-leaf-600 dark:text-leaf-400">Smart Map →</Link>
               </div>
-              <MiniMap
-                center={farmer.coords}
-                zoomKm={55}
+              <MapCanvas
+                center={pins[selected]?.lat != null ? { lat: pins[selected]!.lat, lng: pins[selected]!.lng } : active.coords}
+                zoomKm={26}
                 height={300}
                 selectedId={selected}
-                onSelect={(m) => setSelected(m.id)}
-                markers={list.map((l) => ({
-                  id: l.id, lat: l.coords.lat, lng: l.coords.lng,
-                  label: l.name, sub: `${l.crop} · ${l.acres} ac`, icon: '🌾',
-                }))}
+                onSelect={(id) => setSelected(id)}
+                markers={farmMarkers}
               />
+              {pins[selected] && (
+                <p className="mt-2 rounded-xl bg-leaf-50 px-3 py-2 text-[11px] font-semibold text-ink">
+                  📍 {pins[selected]!.address}{' '}
+                  <span className="font-mono text-faint">({pins[selected]!.lat.toFixed(4)}, {pins[selected]!.lng.toFixed(4)})</span>
+                </p>
+              )}
               <ul className="mt-3 space-y-1.5">
                 {list.map((l) => (
                   <li key={l.id}>
@@ -197,6 +237,31 @@ export default function FarmPage() {
           </Reveal>
         </div>
       </div>
+
+      <div className="mt-8">
+        <NearbyServices
+          categories={['machinery', 'market', 'vet', 'office', 'storage']}
+          origin={pins[selected] ? { lat: pins[selected]!.lat, lng: pins[selected]!.lng } : active.coords}
+          originLabel={active.name}
+          icon="🧭"
+          title="Services near this farm"
+          subtitle="Machinery, markets, vets, offices and storage within reach of the selected land"
+          limit={6}
+        />
+      </div>
+
+      <LocationPickerModal
+        open={picker}
+        onClose={() => setPicker(false)}
+        title={`📍 Farm location — ${active.name}`}
+        initial={pins[selected] ? { lat: pins[selected]!.lat, lng: pins[selected]!.lng } : active.coords}
+        onConfirm={(loc) => {
+          const stored: StoredLocation = { lat: loc.lat, lng: loc.lng, address: loc.address, savedAt: new Date().toISOString() }
+          setFarmLocation(selected, stored)
+          setPins((p) => ({ ...p, [selected]: stored }))
+          setPicker(false)
+        }}
+      />
 
       {/* ------------------------------------------------- add land modal */}
       <Modal open={open} onClose={() => setOpen(false)} title="Add new land" wide>

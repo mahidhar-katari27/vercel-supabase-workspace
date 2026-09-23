@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { Card, Chip, DemoTag, PageHeader, Reveal, spring, Stepper } from '@/components/ui'
 import { driverPool, farmer, lands, machines, type Machine } from '@/lib/data'
 import { cn, inr } from '@/lib/utils'
+import { placeForRef } from '@/lib/places'
+import { directionsUrl, formatKm, haversineKm } from '@/lib/geo'
+import NearbyServices from '@/components/maps/NearbyServices'
 
 const STEPS = ['Machine', 'Date', 'Time', 'Location', 'Operator', 'Confirm']
 
@@ -99,9 +102,10 @@ export default function AgriRentPage() {
               <Panel key="s0" title="Choose a machine" sub={`${machines.filter((m) => m.available).length} of ${machines.length} available near you`}>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {machines.map((m, i) => (
-                    <motion.button key={m.id} onClick={() => m.available && setMachineId(m.id)}
-                      disabled={!m.available}
-                      className={cn('card text-left transition-all duration-300',
+                    <motion.div key={m.id} role="button" tabIndex={0}
+                      onClick={() => m.available && setMachineId(m.id)}
+                      onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && m.available) { e.preventDefault(); setMachineId(m.id) } }}
+                      className={cn('card cursor-pointer text-left transition-all duration-300',
                         machineId === m.id ? 'border-leaf-400/70 shadow-glow' : m.available ? 'card-hover' : 'opacity-55')}
                       initial={{ opacity: 0, y: 12 }} animate={{ opacity: m.available ? 1 : 0.55, y: 0 }}
                       transition={{ ...spring, delay: i * 0.04 }} aria-pressed={machineId === m.id}>
@@ -128,8 +132,36 @@ export default function AgriRentPage() {
                           </div>
                         </div>
                       </div>
-                    </motion.button>
+
+                      {/* geo block (spec §7): distance, map, directions, book */}
+                      {(() => {
+                        const geo = placeForRef('machine', m.id)
+                        if (!geo) return null
+                        const km = haversineKm(farmer.coords, geo.coords)
+                        return (
+                          <div className="mt-3 rounded-2xl bg-leaf-50 px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold text-ink">
+                              <span>📍 {geo.address.city}</span>
+                              <span className="text-leaf-700">{formatKm(km)} away</span>
+                              {geo.serviceRadiusKm && <span className="text-muted">↔ {geo.serviceRadiusKm} km service radius</span>}
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-1.5">
+                              <Link href={`/map?focus=${geo.id}`} className="rounded-lg border border-line/70 bg-surface px-2.5 py-1.5 text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">📍 View on Map</Link>
+                              <Link href={`/map?focus=${geo.id}&route=1`} className="rounded-lg border border-line/70 bg-surface px-2.5 py-1.5 text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">🧭 Get Directions</Link>
+                              <a href={directionsUrl(farmer.coords, geo.coords)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-line/70 bg-surface px-2.5 py-1.5 text-[10px] font-bold text-ink hover:border-leaf-500">Open in Google Maps ↗</a>
+                              <button type="button" disabled={!m.available} onClick={() => m.available && setMachineId(m.id)}
+                                className="rounded-lg bg-gold-400 px-2.5 py-1.5 text-[10px] font-bold text-ink hover:brightness-105 disabled:opacity-50">
+                                Book {m.icon}
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })()}
+                    </motion.div>
                   ))}
+                </div>
+                <div className="mt-4">
+                  <NearbyServices categories={['machinery']} title="Machinery providers near you" icon="🚜" limit={6} />
                 </div>
               </Panel>
             )}

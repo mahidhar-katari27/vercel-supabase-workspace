@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Card, Chip, DemoTag, Modal, PageHeader, Reveal, Tabs } from '@/components/ui'
+import NearbyServices from '@/components/maps/NearbyServices'
 import { LineChart, Sparkline } from '@/components/charts'
 import { marketRows, priceHistory } from '@/lib/data'
 import { cn, inr } from '@/lib/utils'
@@ -239,6 +240,17 @@ export default function MarketPage() {
         <Chip>Updated 23 Sep · demo</Chip>
         <Chip tone="info">MSP figures are illustrative</Chip>
       </div>
+
+      <div className="mt-10">
+        <NearbyServices
+          categories={['market', 'buyer', 'storage']}
+          title="Nearby markets & buyers"
+          icon="🌾"
+          subtitle="Market yards, buyers and storage within reach — distances are sample-data estimates"
+          limit={6}
+        />
+      </div>
+
     </div>
   )
 }

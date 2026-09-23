@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { Avatar, Card, Chip, DemoTag, Modal, PageHeader, Reveal, spring } from '@/components/ui'
+import NearbyServices from '@/components/maps/NearbyServices'
 import { experts } from '@/lib/data'
 import { cn, inr, num } from '@/lib/utils'
 
@@ -298,6 +299,17 @@ export default function ExpertsPage() {
         <Link href="/crop-doctor" className="btn btn-ghost">🤖 Run AI Crop Doctor</Link>
         <Link href="/learn" className="btn btn-quiet">📚 Browse guides</Link>
       </div>
+
+      <div className="mt-10">
+        <NearbyServices
+          categories={['expert']}
+          title="Expert clinics near you"
+          icon="👨‍🔬"
+          subtitle="Consult in person or online — clinic locations from the sample dataset"
+          limit={6}
+        />
+      </div>
+
     </div>
   )
 }

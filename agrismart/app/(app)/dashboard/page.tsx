@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Card, Chip, Counter, DemoTag, PageHeader, Progress, Reveal, StatCard, spring } from '@/components/ui'
+import NearbyServices from '@/components/maps/NearbyServices'
 import { BarChart, Gauge, LineChart, Sparkline } from '@/components/charts'
 import {
   alerts, bookings, farmer, financeSummary, lands, marketRows,
@@ -344,6 +345,17 @@ export default function DashboardPage() {
           </Card>
         </Reveal>
       </div>
+
+      <div className="mt-10">
+        <NearbyServices
+          categories={['machinery', 'market', 'vet', 'office', 'expert']}
+          title="Nearby for you"
+          icon="📍"
+          subtitle="Machinery, markets, vets, offices and experts around your farm — one tap from the Smart Map"
+          limit={6}
+        />
+      </div>
+
     </div>
   )
 }

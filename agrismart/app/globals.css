@@ -385,3 +385,13 @@ html[data-intro='playing'] {
     transition: none;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Maps: dashed route animation for the labelled demo map.
+ * ------------------------------------------------------------------ */
+@keyframes dm-dash-move {
+  to { stroke-dashoffset: -20; }
+}
+.dm-dash {
+  animation: dm-dash-move 1.1s linear infinite;
+}

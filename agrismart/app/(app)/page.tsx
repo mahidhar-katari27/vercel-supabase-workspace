@@ -3,6 +3,9 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Counter, DemoTag, Reveal, SectionHeading, StatCard, spring } from '@/components/ui'
+import MapCanvas from '@/components/maps/MapCanvas'
+import { categoryColor } from '@/lib/googleMaps'
+import { categoryMeta, geoPlaces } from '@/lib/places'
 import { LineChart, Donut, Gauge } from '@/components/charts'
 import { allSections } from '@/lib/nav'
 import {
@@ -24,6 +27,7 @@ const FEATURES = [
   { href: '/aqua', icon: '🐟', title: 'Aqua Farming', body: 'Pond tracking, DOC, FCR, feed and cost per harvest.' },
   { href: '/community', icon: '👥', title: 'Community', body: 'Ask questions, share results and get answers from experts.' },
   { href: '/learn', icon: '📚', title: 'Learning Hub', body: 'Guides, articles and videos by topic and skill level.' },
+  { href: '/map', icon: '📍', title: 'Smart Map', body: 'Markets, machinery, vets, offices and buyers on one live Google Map.' },
 ]
 
 export default function LandingPage() {
@@ -303,6 +307,47 @@ export default function LandingPage() {
       </section>
 
       {/* ------------------------------------------------------ all routes */}
+      {/* ------------------------------------------------------- smart map */}
+      <section className="section mt-16 sm:mt-24">
+        <SectionHeading
+          eyebrow="Google Maps Platform"
+          title="One map, woven through the whole app"
+          sub="Markets, machinery, veterinary care, agriculture offices, experts, buyers and storage — plotted around your farm with distances and one-tap directions. Runs on the live Google Maps JavaScript API when a key is configured, and on a clearly labelled demo map when it is not."
+          right={<Link href="/map" className="btn btn-primary">Open Smart Map <span aria-hidden>→</span></Link>}
+        />
+        <div className="grid gap-5 lg:grid-cols-[1.3fr_1fr]">
+          <Reveal>
+            <MapCanvas
+              height={380}
+              center={{ lat: 16.5062, lng: 80.648 }}
+              zoomKm={42}
+              markers={geoPlaces.slice(0, 18).map((p) => ({
+                id: p.id, lat: p.coords.lat, lng: p.coords.lng,
+                icon: categoryMeta(p.category).icon,
+                color: categoryColor[p.category] ?? '#166534',
+                label: p.name, sub: categoryMeta(p.category).label,
+              }))}
+            />
+          </Reveal>
+          <div className="grid content-start gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            {[
+              { href: '/farm', icon: '🌾', t: 'My Farm', b: 'Pin the exact farm location; every nearby service measures from it.' },
+              { href: '/agrirent', icon: '🚜', t: 'AgriRent', b: 'Each machine shows distance, service radius, map and directions.' },
+              { href: '/market', icon: '📈', t: 'Market Intelligence', b: 'Nearby market yards with distance and a route before you haul.' },
+              { href: '/schemes', icon: '🏛️', t: 'Government Services', b: 'Offices, RBKs, testing labs and storage with opening info.' },
+            ].map((x, i) => (
+              <Reveal key={x.href} delay={i * 0.06}>
+                <Link href={x.href} className="card card-hover block p-4">
+                  <span className="text-xl" aria-hidden>{x.icon}</span>
+                  <h3 className="mt-1.5 text-sm font-bold">{x.t}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-muted">{x.b}</p>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="section mt-16 sm:mt-20">
         <SectionHeading eyebrow="Sitemap" title="Every module" center />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">

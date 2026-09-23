@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Card, Chip, Counter, DemoTag, PageHeader, Progress, Reveal } from '@/components/ui'
+import NearbyServices from '@/components/maps/NearbyServices'
 import { BarChart, Donut, LineChart } from '@/components/charts'
 import { poultryMonthly, poultrySummary as p } from '@/lib/data'
 import { inr, num } from '@/lib/utils'
@@ -165,6 +166,17 @@ export default function PoultryPage() {
         <Link href="/learn" className="btn btn-ghost">📚 Reduce feed cost guide</Link>
         <Link href="/finance" className="btn btn-quiet">💰 Overall finances</Link>
       </div>
+
+      <div className="mt-10">
+        <NearbyServices
+          categories={['poultry', 'vet']}
+          title="Poultry & veterinary services near you"
+          icon="🐔"
+          subtitle="Feed depots, health services and vets for your flock"
+          limit={6}
+        />
+      </div>
+
     </div>
   )
 }

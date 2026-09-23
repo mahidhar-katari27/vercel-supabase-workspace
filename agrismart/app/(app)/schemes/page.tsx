@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { Card, Chip, DemoTag, Modal, PageHeader, Reveal, spring } from '@/components/ui'
+import NearbyServices from '@/components/maps/NearbyServices'
 import { farmer, schemeApplications, schemes, schemeStages, type Scheme } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
@@ -321,6 +322,17 @@ export default function SchemesPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <div className="mt-10">
+        <NearbyServices
+          categories={['office', 'storage', 'vet']}
+          title="Government services near you"
+          icon="🏛️"
+          subtitle="Agriculture offices, Rythu Bharosa Kendras, soil testing labs, veterinary hospitals and storage"
+          limit={6}
+        />
+      </div>
+
     </div>
   )
 }
