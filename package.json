@@ -1,0 +1,28 @@
+{
+  "name": "vercel-supabase-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Workspace wired to Vercel (mahidharkatari2709-7801) + Supabase",
+  "scripts": {
+    "vercel": "vercel",
+    "deploy": "bash deploy.sh",
+    "deploy:prod": "bash deploy.sh --prod",
+    "whoami": "bash deploy.sh whoami",
+    "projects": "bash deploy.sh projects",
+    "deploys": "bash deploy.sh deploys",
+    "check:vercel": "bash deploy.sh whoami",
+    "check:supabase": "node scripts/check-supabase.mjs",
+    "check:supabase-sdk": "node --env-file=.env.local scripts/sdk-smoke.mjs",
+    "check:supabase-admin": "node scripts/check-supabase-admin.mjs",
+    "guard:secrets": "node scripts/guard-secrets.mjs",
+    "check": "bash -c 'npm run check:vercel --silent; echo; npm run check:supabase --silent; echo; npm run check:supabase-sdk --silent; echo; npm run check:supabase-admin --silent'",
+    "predeploy": "npm run guard:secrets --silent"
+  },
+  "devDependencies": {
+    "vercel": "^59.25.4"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.109.0",
+    "ws": "^8.21.3"
+  }
+}
