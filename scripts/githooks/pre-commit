@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Installed via scripts/git-setup.sh (core.hooksPath -> scripts/githooks).
+# Kept inside the repo so it survives; .git/config does not persist here.
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+if command -v node >/dev/null 2>&1; then
+  if ! node "$ROOT/scripts/scan-staged-secrets.mjs"; then
+    echo "pre-commit: aborting commit. Fix the findings above, or bypass with"
+    echo "            git commit --no-verify  (only if you are certain)."
+    exit 1
+  fi
+else
+  echo "pre-commit: node not found — cannot scan for secrets." >&2
+  echo "            refusing to commit blindly. Install node or use --no-verify." >&2
+  exit 1
+fi

@@ -27,6 +27,8 @@ const SECRETS = [
   ['VERCEL_TOKEN', env.VERCEL_TOKEN],
   ['SUPABASE_SECRET_KEY', env.SUPABASE_SECRET_KEY],
   ['SUPABASE_SERVICE_ROLE_KEY', env.SUPABASE_SERVICE_ROLE_KEY],
+  ['GITHUB_TOKEN', env.GITHUB_TOKEN],
+  ['GIT_TOKEN', env.GIT_TOKEN],
 ].filter(([, v]) => v && v.length >= 12)
 
 // The anon key is public by design, so it is deliberately NOT in that list.

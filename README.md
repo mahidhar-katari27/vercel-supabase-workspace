@@ -7,9 +7,56 @@ There is no application code here yet — only the wiring.
 
 | Service | Identity | Status |
 |---|---|---|
+| **GitHub** | `mahidhar-katari27` · free | ✅ verified · 🔒 rotate token |
 | **Vercel** | `mahidharkatari2709-7801` · Hobby | ✅ verified |
 | **Supabase** · anon | project `zhnroiztfzocjfiegssa` | ✅ verified |
 | **Supabase** · secret | same project, RLS-bypassing | ✅ verified · 🔒 rotate |
+
+### GitHub
+
+| | |
+|---|---|
+| Account | `mahidhar-katari27` (created 2026-08-31) |
+| Plan | free · 2FA **disabled** |
+| Repository | https://github.com/mahidhar-katari27/vercel-supabase-workspace |
+| Visibility | **private** |
+| Branch | `main` |
+| Token scopes | `repo`, `user`, `workflow`, `delete_repo`, `admin:org`, `admin:enterprise`, … |
+
+> 🔒 **This token is effectively unrestricted.** The scopes include
+> `admin:enterprise`, `admin:org` and `delete_repo`, so it can delete
+> repositories, read your email address, and act across any organisation you
+> belong to. Creating one repo needed only `repo`. **Rotate it** and reissue
+> with the minimum scope you actually need. 2FA is also off on this account,
+> which is worth fixing independently of the token.
+
+The token is **not** stored in `.git/config`. Pushes read it from `$GIT_TOKEN`
+via `scripts/git-credential-env.sh`, so it never lands on disk or in process
+args. Because `.git/config` is not persisted between sessions, run
+`bash scripts/git-setup.sh` after a fresh session to restore the remote,
+identity and hook path.
+
+```bash
+export GIT_TOKEN=ghp_...
+bash scripts/git-push.sh          # scans staged bytes, then pushes
+```
+
+### Secret-scan pre-commit hook
+
+`scripts/githooks/pre-commit` runs `scripts/scan-staged-secrets.mjs` on every
+commit. It reads the **staged bytes** via `git show :path`, not the working
+tree — because `.gitignore` does not apply to files already tracked, which is
+how secrets usually escape. It blocks:
+
+- any `.env*` file being staged (except `.env.example`)
+- the literal value of any secret found in `.env.local`
+- real-looking credentials matching 10 known shapes (GitHub PATs, Vercel,
+  Supabase secret keys, AWS, Slack, private key blocks, Postgres URIs)
+
+Placeholders such as `sb_secret_your_secret_key` are ignored, so the guard does
+not cry wolf. Verified with positive controls: it refuses a commit containing
+`.env.local` or a planted `ghp_` token (exit 1) and allows a clean one (exit 0).
+Bypass only with `git commit --no-verify`.
 
 ### Vercel
 
@@ -173,7 +220,12 @@ see them — `.env.local` is gitignored and never uploaded:
 | `scripts/check-supabase.mjs` | Anon key: REST-level connectivity diagnostics |
 | `scripts/sdk-smoke.mjs` | Anon key: end-to-end `supabase-js` test |
 | `scripts/check-supabase-admin.mjs` | Secret key: privileges, schema, inventory |
-| `scripts/guard-secrets.mjs` | Pre-deploy scan for leaked secrets |
+| `scripts/guard-secrets.mjs` | Scan the working tree for leaked secrets |
+| `scripts/scan-staged-secrets.mjs` | Scan the git **index** for leaked secrets |
+| `scripts/githooks/pre-commit` | Runs the staged scan on every commit |
+| `scripts/git-setup.sh` | Restores remote / identity / hooks path after a new session |
+| `scripts/git-credential-env.sh` | Credential helper reading `$GIT_TOKEN` (never persists it) |
+| `scripts/git-push.sh` | Scan-then-push |
 | `package.json` | npm scripts + dependencies |
 
 ## Gotchas found the hard way
@@ -214,13 +266,14 @@ see them — `.env.local` is gitignored and never uploaded:
 
 ## Security
 
-Three credentials live in `.env.local` (mode `600`, gitignored). **All three
+Three credentials live in `.env.local` (mode `600`, gitignored). **All four
 were pasted into this chat conversation** and should be treated as exposed.
 
 | Credential | Sensitivity | Action |
 |---|---|---|
-| `VERCEL_TOKEN` | 🔴 secret — can deploy, delete, and read env vars | rotate; also expires **2026-09-30** |
 | `SUPABASE_SECRET_KEY` | 🔴🔴 **master password** — bypasses RLS on every table, user and bucket | **rotate as soon as you are done** |
+| `GITHUB_TOKEN` | 🔴🔴 `admin:org`, `admin:enterprise`, `delete_repo` — near-unrestricted | **rotate and reissue with only `repo`** |
+| `VERCEL_TOKEN` | 🔴 can deploy, delete, and read env vars | rotate; also expires **2026-09-30** |
 | `SUPABASE_ANON_KEY` | 🟢 public by design | safe *only while RLS is on* |
 
 **The secret key is the one that matters.** Unlike the Vercel token or the anon

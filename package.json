@@ -15,6 +15,9 @@
     "check:supabase-sdk": "node --env-file=.env.local scripts/sdk-smoke.mjs",
     "check:supabase-admin": "node scripts/check-supabase-admin.mjs",
     "guard:secrets": "node scripts/guard-secrets.mjs",
+    "check:staged": "node scripts/scan-staged-secrets.mjs",
+    "git:setup": "bash scripts/git-setup.sh",
+    "git:push": "bash scripts/git-push.sh",
     "check": "bash -c 'npm run check:vercel --silent; echo; npm run check:supabase --silent; echo; npm run check:supabase-sdk --silent; echo; npm run check:supabase-admin --silent'",
     "predeploy": "npm run guard:secrets --silent"
   },
