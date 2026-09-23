@@ -38,18 +38,33 @@ export const viewport: Viewport = {
 
 /**
  * Runs synchronously before the intro markup is parsed, so it executes before
- * first paint. Returning users get `data-intro="seen"` on <html>, which CSS
- * uses to hide the overlay — no flash of the animation. First-time users get
- * nothing, so the overlay paints immediately — no flash of the website.
+ * first paint. It sets one of two states on <html>:
  *
- * This is deliberately inline and blocking: deferring it to a React effect is
- * exactly what caused the website to show for a frame before the intro.
+ *   data-intro="seen"    — returning user. CSS hides the overlay entirely, so
+ *                          the app paints immediately with no intro flash. The
+ *                          inline dark background on <html> is cleared here so
+ *                          the theme's own background governs.
+ *   data-intro="playing" — first visit. The inline dark background on <html>
+ *                          (see below) stays, so the very first frame is dark
+ *                          even before a single body node has been parsed.
+ *
+ * Deliberately inline and blocking: deferring it to a React effect is what let
+ * the website show for a frame before the intro.
  */
-const INTRO_BOOT = `(function(){try{if(sessionStorage.getItem('agrismart-intro-seen')==='1'){document.documentElement.setAttribute('data-intro','seen')}}catch(e){}})();`
+const INTRO_BOOT = `(function(){try{var d=document.documentElement;var s=sessionStorage.getItem('agrismart-intro-seen')==='1';d.setAttribute('data-intro',s?'seen':'playing');if(s)d.style.background=''}catch(e){}})();`
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    /*
+     * The inline background is the last line of defence against a white first
+     * frame. It is serialised into the opening <html> tag — inside the first
+     * ~100 bytes of the document — so the browser paints the intro colour the
+     * instant the element exists. No stylesheet and no JavaScript need to have
+     * arrived yet, which is exactly the window that a rural 3G connection
+     * stretches to hundreds of milliseconds. <body> always has an opaque themed
+     * background, so once the page is up this is simply painted over.
+     */
+    <html lang="en" suppressHydrationWarning style={{ background: '#060f0a' }}>
       <body>
         <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT }} />
         <ThemeProvider>

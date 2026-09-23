@@ -46,3 +46,6 @@ npm-debug.log*
 Thumbs.db
 .idea/
 .vscode/
+
+# stray sudo artifact
+.sudo_as_admin_successful

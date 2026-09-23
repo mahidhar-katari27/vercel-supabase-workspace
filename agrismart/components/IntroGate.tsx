@@ -20,7 +20,12 @@ function markSeen() {
   } catch {
     /* private mode — the intro just replays next load */
   }
-  document.documentElement.setAttribute(ATTR, 'seen')
+  const html = document.documentElement
+  html.setAttribute(ATTR, 'seen')
+  // The root layout paints <html> the intro colour inline so the first frame is
+  // dark with no JS. The intro is over now, so hand the background back to the
+  // theme. <body> is opaque either way — this only matters for overscroll.
+  html.style.background = ''
 }
 
 function clearSeen() {
@@ -29,21 +34,27 @@ function clearSeen() {
   } catch {
     /* ignore */
   }
-  document.documentElement.removeAttribute(ATTR)
+  // Back to the "first visit" state so a replay also gets the dark first frame.
+  document.documentElement.setAttribute(ATTR, 'playing')
 }
 
 /**
  * Plays the cinematic intro once per session over a true fullscreen overlay.
  *
- * `show` starts **true** so the overlay is present in the server-rendered HTML
- * and paints on the very first frame — the website never appears before it.
- * Returning users are handled by a blocking script in the root layout that
- * marks <html data-intro="seen"> before paint, which CSS turns into
- * `display: none`; the effect below then unmounts it. So neither direction
- * flashes.
+ * The overlay is rendered as the FIRST child of <body>, ahead of the app
+ * markup. That ordering matters for slow connections: HTML streams, and the
+ * browser paints whatever it has parsed. If the app markup came first, a rural
+ * 3G user would see the navbar and hero for a moment before the intro bytes
+ * arrived. Putting the overlay first means the first body element parsed —
+ * and therefore the first thing painted — is the intro.
  *
- * The real app stays rendered underneath, which lets scene 5 reveal a live
- * dashboard instead of a blank page.
+ * `show` starts true so the overlay is in the server-rendered HTML. Returning
+ * users are handled by a blocking script in the root layout that sets
+ * <html data-intro="seen"> before paint; CSS turns that into display:none.
+ * Neither direction flashes.
+ *
+ * The real app still renders underneath (later in the document), which lets
+ * scene 5 reveal a live dashboard instead of a blank page.
  */
 export default function IntroGate({ children }: { children: React.ReactNode }) {
   const [show, setShow] = useState(true)
@@ -91,8 +102,10 @@ export default function IntroGate({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {children}
+      {/* Deliberately first: the intro must be the first body node parsed so it
+          wins the first paint even when the document arrives in chunks. */}
       {show && <CinematicIntro onDone={done} />}
+      {children}
     </>
   )
 }

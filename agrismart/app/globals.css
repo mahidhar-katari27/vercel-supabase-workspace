@@ -326,6 +326,14 @@ html[data-intro='seen'] .intro-overlay {
   display: none !important;
 }
 
+/* First visit: paint the root element the intro colour from the very first
+   frame, before a single body node has been parsed. Without this, the gap
+   between the stylesheet arriving and the first body element painting can show
+   the browser's default (white) background. */
+html[data-intro='playing'] {
+  background: #060f0a;
+}
+
 /* Every animation layer lives inside the overlay and fills it. */
 .intro-layer {
   position: absolute;
