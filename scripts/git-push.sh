@@ -18,4 +18,11 @@ if [[ -n "$(git diff --cached --name-only)" ]]; then
   node scripts/scan-staged-secrets.mjs || { echo "refusing to push"; exit 1; }
 fi
 
-exec git -c credential.helper="$ROOT/scripts/git-credential-env.sh" push "${@:--u origin main}"
+# NOTE: "${@:-default}" would collapse the default into ONE argument
+# ("-u origin main"), which git rejects. Expand the default as separate words.
+HELPER="$ROOT/scripts/git-credential-env.sh"
+if [[ $# -gt 0 ]]; then
+  exec git -c credential.helper="$HELPER" push "$@"
+else
+  exec git -c credential.helper="$HELPER" push -u origin main
+fi
