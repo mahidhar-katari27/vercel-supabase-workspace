@@ -10,6 +10,8 @@
  * so swapping demo data for live queries is a drop-in change.
  */
 
+import type { CropKey } from './crops'
+
 export type LatLng = { lat: number; lng: number }
 
 /* ------------------------------------------------------------------ farmer */
@@ -23,8 +25,8 @@ export const farmer = {
   coords: { lat: 16.5062, lng: 80.648 } as LatLng,
   season: 'Kharif 2026',
   memberSince: '2024',
-  totalAcres: 4.5,
-  activeCrops: 3,
+  totalAcres: 9.3,
+  activeCrops: 4,
   languages: ['English', 'తెలుగు', 'Tenglish'],
   avatarSeed: 'RN',
 }
@@ -53,6 +55,12 @@ export type Land = {
   progress: number
   health: number
   coords: LatLng
+  /** Catalogue key driving the crop photograph — see lib/crops.ts */
+  cropKey: CropKey
+  harvestDays: number
+  investment: number
+  revenue: number
+  profit: number
 }
 
 export const lands: Land[] = [
@@ -65,44 +73,78 @@ export const lands: Land[] = [
     irrigation: 'Borewell',
     crop: 'Paddy',
     planted: '2026-06-18',
-    harvest: '2026-10-22',
-    stage: 'Tillering',
-    progress: 52,
+    harvest: '2026-11-04',
+    stage: 'Vegetative',
+    progress: 58,
     health: 92,
     coords: { lat: 16.5062, lng: 80.648 },
+    cropKey: 'paddy',
+    harvestDays: 42,
+    investment: 42000,
+    revenue: 78000,
+    profit: 36000,
   },
   {
     id: 'land-02',
     name: 'Land 02',
-    location: 'Nuzvid',
-    acres: 1.2,
+    location: 'Guntur',
+    acres: 1.8,
     soil: 'Red loamy',
-    irrigation: 'Canal',
+    irrigation: 'Drip',
     crop: 'Chilli',
-    planted: '2026-07-02',
-    harvest: '2026-12-10',
+    planted: '2026-07-05',
+    harvest: '2026-12-08',
     stage: 'Flowering',
-    progress: 38,
-    health: 78,
-    coords: { lat: 16.785, lng: 80.8465 },
+    progress: 44,
+    health: 87,
+    coords: { lat: 16.3067, lng: 80.4365 },
+    cropKey: 'chilli',
+    harvestDays: 76,
+    investment: 55000,
+    revenue: 118000,
+    profit: 63000,
   },
   {
     id: 'land-03',
     name: 'Land 03',
-    location: 'Gudivada',
-    acres: 0.8,
-    soil: 'Alluvial',
-    irrigation: 'Drip',
+    location: 'Prakasam',
+    acres: 3,
+    soil: 'Black cotton soil',
+    irrigation: 'Rainfed',
     crop: 'Cotton',
-    planted: '2026-05-30',
-    harvest: '2027-01-15',
-    stage: 'Boll formation',
-    progress: 61,
-    health: 88,
-    coords: { lat: 16.4315, lng: 80.9963 },
+    planted: '2026-07-12',
+    harvest: '2026-11-30',
+    stage: 'Vegetative',
+    progress: 40,
+    health: 94,
+    coords: { lat: 15.8781, lng: 79.4122 },
+    cropKey: 'cotton',
+    harvestDays: 68,
+    investment: 48000,
+    revenue: 96000,
+    profit: 48000,
+  },
+  {
+    id: 'land-04',
+    name: 'Land 04',
+    location: 'Krishna District',
+    acres: 2,
+    soil: 'Alluvial',
+    irrigation: 'Canal',
+    crop: 'Maize',
+    planted: '2026-07-20',
+    harvest: '2026-11-13',
+    stage: 'Growing',
+    progress: 49,
+    health: 90,
+    coords: { lat: 16.787, lng: 80.846 },
+    cropKey: 'maize',
+    harvestDays: 51,
+    investment: 30000,
+    revenue: 62000,
+    profit: 32000,
   },
 ]
-
 export const soilTypes = ['Black cotton soil', 'Red loamy', 'Alluvial', 'Sandy loam', 'Clay', 'Laterite']
 export const irrigationTypes = ['Borewell', 'Canal', 'Drip', 'Sprinkler', 'Rainfed', 'River lift']
 
