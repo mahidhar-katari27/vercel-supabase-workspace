@@ -1,0 +1,11 @@
+.vercel/
+.vercel
+.env*
+
+# build artifacts
+*.tsbuildinfo
+.next/
+out/
+
+# deps
+node_modules/

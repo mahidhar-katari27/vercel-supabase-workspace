@@ -1,0 +1,269 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ *
+ * AgriSmart 2.0 design tokens
+ * Modern agriculture + AI + fintech. Light: warm beige/white with leaf
+ * green. Dark: deep charcoal-forest with luminous green + gold.
+ * ------------------------------------------------------------------ */
+@layer base {
+  :root {
+    /* System stacks only — no webfont requests, so first paint is never
+       blocked on a font download. Critical for rural 3G connections. */
+    --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    --font-display: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, sans-serif;
+
+    --bg: 40 33% 97%;
+    --surface: 0 0% 100%;
+    --raised: 40 30% 99%;
+    --line: 150 14% 78%;
+    --ink: 152 28% 11%;
+    --muted: 152 11% 38%;
+    --faint: 152 9% 55%;
+    --shadow: 152 30% 12%;
+
+    --leaf-50: 145 45% 95%;
+    --leaf-400: 148 46% 48%;
+    --leaf-500: 149 63% 36%;
+
+    --gold-400: 41 68% 58%;
+
+    --glass: 0 0% 100%;
+    --glass-a: 0.62;
+    --ring: 149 63% 36%;
+  }
+
+  .dark {
+    --bg: 152 24% 6%;
+    --surface: 152 20% 9%;
+    --raised: 152 18% 12%;
+    --line: 150 14% 22%;
+    --ink: 145 26% 94%;
+    --muted: 146 12% 66%;
+    --faint: 146 10% 50%;
+    --shadow: 0 0% 0%;
+
+    --leaf-50: 150 30% 14%;
+    --leaf-400: 152 62% 54%;
+    --leaf-500: 152 66% 45%;
+
+    --gold-400: 43 74% 62%;
+
+    --glass: 152 20% 12%;
+    --glass-a: 0.55;
+    --ring: 152 62% 54%;
+  }
+
+  * {
+    @apply border-line;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  /* Larger, calmer type scale for farmers reading outdoors on phones */
+  body {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  @media (min-width: 768px) {
+    body { font-size: 16.5px; }
+  }
+
+  ::selection {
+    background: hsl(var(--leaf-400) / 0.28);
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-offset-2 ring-offset-bg;
+    --tw-ring-color: hsl(var(--ring) / 0.7);
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight text-balance;
+    line-height: 1.12;
+  }
+}
+
+@layer components {
+  /* Glass panel — the core surface of the whole product */
+  .glass {
+    background: hsl(var(--glass) / var(--glass-a));
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    @apply border border-line/70 shadow-soft;
+  }
+  .glass-strong {
+    background: hsl(var(--glass) / calc(var(--glass-a) + 0.2));
+    backdrop-filter: blur(22px) saturate(1.5);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    @apply border border-line/70 shadow-lift;
+  }
+
+  .card {
+    @apply glass rounded-3xl;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.35s ease;
+  }
+  .card-hover:hover {
+    @apply shadow-lift -translate-y-1;
+    border-color: hsl(var(--leaf-400) / 0.35);
+  }
+
+  .btn {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-2xl
+      px-5 py-3 text-sm font-semibold transition-all duration-300
+      active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50
+      select-none;
+  }
+  .btn-primary {
+    @apply btn text-white shadow-glow;
+    background-image: linear-gradient(135deg, #2aa468 0%, #157a48 58%, #0e4b30 100%);
+  }
+  .btn-primary:hover {
+    filter: brightness(1.08);
+    @apply shadow-lift -translate-y-0.5;
+  }
+  .btn-gold {
+    @apply btn text-earth-900;
+    background-image: linear-gradient(135deg, #f2d68a 0%, #d4a537 60%, #b3862a 100%);
+  }
+  .btn-gold:hover { filter: brightness(1.06); @apply -translate-y-0.5 shadow-lift; }
+  .btn-ghost {
+    @apply btn glass text-ink;
+  }
+  .btn-ghost:hover {
+    border-color: hsl(var(--leaf-400) / 0.45);
+    @apply -translate-y-0.5;
+  }
+  .btn-quiet {
+    @apply btn text-muted hover:text-ink;
+    background: transparent;
+  }
+  .btn-danger {
+    @apply btn font-bold text-white;
+    background: linear-gradient(135deg, hsl(4 74% 56%), hsl(355 68% 46%));
+    box-shadow: 0 8px 24px -10px hsl(4 74% 56% / 0.55);
+  }
+  .btn-danger:hover { @apply -translate-y-0.5; filter: brightness(1.06); }
+  .btn-lg { @apply px-7 py-4 text-base rounded-2xl; }
+  .btn-sm { @apply px-3.5 py-2 text-xs rounded-xl; }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line/80
+      px-3 py-1 text-xs font-medium text-muted;
+  }
+  .chip-live {
+    @apply border-leaf-400/40 text-leaf-600 dark:text-leaf-400;
+    background: hsl(var(--leaf-400) / 0.1);
+  }
+  .chip-demo {
+    @apply border-gold-400/45 text-gold-600 dark:text-gold-400;
+    background: hsl(var(--gold-400) / 0.12);
+  }
+  .chip-info {
+    @apply border-sky-400/40 text-sky-500;
+    background: hsl(205 70% 55% / 0.1);
+  }
+
+  .input {
+    @apply w-full rounded-2xl border border-line bg-surface/70 px-4 py-3
+      text-sm text-ink placeholder:text-faint transition-all duration-200
+      focus:border-leaf-400/70 focus:bg-surface focus:outline-none
+      focus:ring-4 focus:ring-leaf-400/10;
+  }
+  .label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted;
+  }
+
+  .section {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .stat-value {
+    @apply font-display text-3xl font-bold tracking-tight sm:text-4xl;
+  }
+
+  .hairline {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-line to-transparent;
+  }
+
+  .menu-link {
+    @apply flex items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-medium text-muted
+      transition-colors duration-200 hover:bg-line/40 hover:text-ink;
+  }
+
+  .footer-link {
+    @apply transition-colors duration-200 hover:text-leaf-600 dark:hover:text-leaf-400;
+  }
+
+  /* Shimmering skeleton used while "AI" analyses */
+  .skeleton {
+    @apply relative overflow-hidden rounded-2xl bg-line/40;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--glass) / 0.55),
+      transparent
+    );
+  }
+}
+
+@layer utilities {
+  .text-gradient-leaf {
+    background: linear-gradient(120deg, #2aa468 0%, #7fcfa4 45%, #d4a537 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-gold {
+    background: linear-gradient(120deg, #f2d68a, #d4a537);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .tap-lg { min-height: 48px; min-width: 48px; }
+}
+
+/* Thin, unobtrusive scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--line) / 0.9);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--leaf-400) / 0.6); background-clip: content-box; }
+
+/* Respect users who ask for less motion — the intro collapses to a fast fade */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
