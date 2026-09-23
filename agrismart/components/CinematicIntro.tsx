@@ -92,10 +92,10 @@ export default function CinematicIntro({ onDone }: { onDone: () => void }) {
       {!leaving && (
         <motion.div
           key="intro"
-          className="fixed inset-0 z-[100] overflow-hidden bg-[#060f0a]"
+          className="intro-overlay"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.04 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          exit={{ opacity: 0, scale: 1.02 }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           role="status"
           aria-label="AgriSmart opening animation"
         >
@@ -162,7 +162,7 @@ export default function CinematicIntro({ onDone }: { onDone: () => void }) {
 
           {/* ---------------- SCENES 2–3: one evolving stage ---------------- */}
           <motion.div
-            className="absolute inset-0 grid place-items-center"
+            className="intro-layer"
             animate={{
               opacity: phase === 0 ? 0 : 1,
               scale: phase <= 1 ? 1.55 : 1,
@@ -171,7 +171,12 @@ export default function CinematicIntro({ onDone }: { onDone: () => void }) {
             transition={{ duration: phase === 2 ? 1.5 : 1, ease: [0.22, 1, 0.36, 1] }}
             aria-hidden
           >
-            <svg viewBox="0 0 400 300" className="h-full w-full max-w-3xl" preserveAspectRatio="xMidYMid meet">
+            {/* `slice` is the SVG equivalent of object-fit: cover — the scene
+                fills the viewport and crops rather than letterboxing, so there
+                is never an empty band around a centered box. Key content sits
+                at the viewBox centre (200,150) so it survives cropping on both
+                16:9 and 9:16. */}
+            <svg viewBox="0 0 400 300" className="intro-stage" preserveAspectRatio="xMidYMid slice">
               <defs>
                 <radialGradient id="seedGlow" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stopColor="#f2d68a" stopOpacity="0.95" />
@@ -380,17 +385,17 @@ export default function CinematicIntro({ onDone }: { onDone: () => void }) {
             </div>
           </motion.div>
 
-          {/* Skip — bottom-right, always reachable */}
+          {/* Skip — bottom-right, safe-area aware, above every animation layer */}
           <button
             onClick={finish}
-            className="group absolute bottom-5 right-5 z-10 flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white/75 backdrop-blur-md transition-all duration-300 hover:border-white/35 hover:bg-white/15 hover:text-white focus-visible:ring-2 focus-visible:ring-gold-400"
+            className="intro-skip group flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/75 backdrop-blur-md transition-all duration-300 hover:border-white/35 hover:bg-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
           >
-            Skip intro
+            Skip Intro
             <span className="transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden>→</span>
           </button>
 
-          {/* Timeline progress */}
-          <div className="absolute bottom-0 left-0 h-[3px] w-full bg-white/10" aria-hidden>
+          {/* Timeline progress — flush to the physical bottom edge */}
+          <div className="intro-progress bg-white/10" aria-hidden>
             <motion.div
               className="h-full bg-gradient-to-r from-leaf-400 via-leaf-300 to-gold-400"
               initial={{ width: '0%' }}

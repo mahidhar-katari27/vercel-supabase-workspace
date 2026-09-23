@@ -267,3 +267,113 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ================================================================== *
+ * FULLSCREEN CINEMATIC INTRO
+ * ------------------------------------------------------------------
+ * The overlay must cover the *entire* viewport from the first painted
+ * frame: no white edges, no partial height, no website showing through,
+ * no scrolling behind it. Explicit sizing (rather than relying on
+ * `inset-0` alone) so mobile dynamic toolbars can never expose a strip.
+ * ================================================================== */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Page lock while the intro plays. */
+html.intro-active,
+body.intro-active {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+  /* Match the intro so any overscroll gutter is the same colour, never white. */
+  background: #060f0a;
+}
+
+.intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* Explicit width/height instead of right/bottom so the box is never
+     under-constrained by an ancestor. */
+  width: 100vw;
+  height: 100vh;            /* fallback for browsers without dvh */
+  height: 100dvh;           /* dynamic viewport: tracks mobile toolbars */
+  min-height: 100vh;        /* guarantees full cover when dvh < vh */
+  margin: 0;
+  padding: 0;
+  border: 0;
+  z-index: 2147483000;      /* above navbar, bottom nav and the assistant */
+  overflow: hidden;
+  background: #060f0a;
+  contain: paint;           /* nothing behind can bleed through */
+  touch-action: none;       /* no scroll/pan gestures reach the page */
+  overscroll-behavior: none;
+  isolation: isolate;       /* own stacking context for the layer pile */
+}
+
+/* Returning users: the head script marks <html> before first paint, so the
+   overlay is hidden without ever flashing. */
+html[data-intro='seen'] .intro-overlay {
+  display: none !important;
+}
+
+/* Every animation layer lives inside the overlay and fills it. */
+.intro-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The cinematic scene covers edge-to-edge. The SVG uses
+   preserveAspectRatio="xMidYMid slice" — the equivalent of object-fit:
+   cover — so it fills and crops rather than letterboxing. */
+.intro-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Skip button: bottom-right, above every animation layer, and clear of
+   notches / rounded corners via safe-area insets. */
+.intro-skip {
+  position: absolute;
+  right: calc(24px + env(safe-area-inset-right, 0px));
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+}
+
+@media (max-width: 640px) {
+  .intro-skip {
+    right: calc(16px + env(safe-area-inset-right, 0px));
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Timeline bar sits flush to the physical bottom edge, inset-aware. */
+.intro-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  z-index: 35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-overlay {
+    /* The gate finishes immediately; this just avoids any stray animation. */
+    transition: none;
+  }
+}

@@ -36,10 +36,22 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
+/**
+ * Runs synchronously before the intro markup is parsed, so it executes before
+ * first paint. Returning users get `data-intro="seen"` on <html>, which CSS
+ * uses to hide the overlay — no flash of the animation. First-time users get
+ * nothing, so the overlay paints immediately — no flash of the website.
+ *
+ * This is deliberately inline and blocking: deferring it to a React effect is
+ * exactly what caused the website to show for a frame before the intro.
+ */
+const INTRO_BOOT = `(function(){try{if(sessionStorage.getItem('agrismart-intro-seen')==='1'){document.documentElement.setAttribute('data-intro','seen')}}catch(e){}})();`
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT }} />
         <ThemeProvider>
           <IntroGate>{children}</IntroGate>
         </ThemeProvider>
