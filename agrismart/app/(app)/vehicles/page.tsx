@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Card, Chip, DemoTag, Modal, PageHeader, Reveal, spring, Tabs } from '@/components/ui'
 import { driverPool, equipmentCategories, farmer, vehicles, type Vehicle } from '@/lib/data'
 import { addBooking } from '@/lib/liveStore'
-import Image from 'next/image'
+import SmartImage from '@/components/SmartImage'
 import { cn, inr, num } from '@/lib/utils'
 
 const TABS = [
@@ -125,9 +125,9 @@ export default function VehiclesPage() {
             <Reveal key={v.id} delay={Math.min(i, 8) * 0.05}>
               <motion.article className="group card card-hover flex h-full flex-col !p-0 overflow-hidden" whileHover={{ y: -4 }}>
                 <div className="relative h-40 overflow-hidden">
-                  <Image
-                    src={v.image} alt={v.name} fill sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+                  <SmartImage
+                    src={v.image} alt={v.name} ratio="aspect-auto h-40"
+                    imgClassName="transition-transform duration-700 group-hover:scale-[1.06]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" aria-hidden />
                   <span className="absolute left-3 top-3 rounded-full bg-black/40 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur-sm">
