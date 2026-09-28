@@ -203,11 +203,11 @@ export default function MarketplacePage() {
                       </p>
                       <div className="mt-1.5 flex gap-1.5">
                         <Link href={`/map?lat=${g.coords.lat}&lng=${g.coords.lng}&label=${encodeURIComponent(p.seller + ' — ' + p.name)}`}
-                          className="flex-1 rounded-lg border border-line/70 bg-surface px-2 py-1 text-center text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">
+                          className="flex min-h-[34px] flex-1 items-center justify-center rounded-lg border border-line/70 bg-surface px-2 text-center text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">
                           View on Map
                         </Link>
                         <Link href={`/map?lat=${g.coords.lat}&lng=${g.coords.lng}&label=${encodeURIComponent(p.name)}&route=1`}
-                          className="flex-1 rounded-lg border border-line/70 bg-surface px-2 py-1 text-center text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">
+                          className="flex min-h-[34px] flex-1 items-center justify-center rounded-lg border border-line/70 bg-surface px-2 text-center text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">
                           🧭 Directions
                         </Link>
                         <a href={directionsUrl(farmer.coords, g.coords)} target="_blank" rel="noopener noreferrer"

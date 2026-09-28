@@ -188,8 +188,8 @@ export default function DemoMapView({
           )}
         </span>
         <div className="pointer-events-auto flex flex-col overflow-hidden rounded-xl border border-line/70 bg-surface/90 shadow-sm backdrop-blur">
-          <button type="button" onClick={(e) => { e.stopPropagation(); zoomBy(0.8) }} className="px-2.5 py-1.5 text-sm font-bold text-ink hover:bg-leaf-50" aria-label="Zoom in">+</button>
-          <button type="button" onClick={(e) => { e.stopPropagation(); zoomBy(1.25) }} className="border-t border-line/60 px-2.5 py-1.5 text-sm font-bold text-ink hover:bg-leaf-50" aria-label="Zoom out">−</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); zoomBy(0.8) }} className="grid h-9 w-9 place-items-center text-sm font-bold text-ink hover:bg-leaf-50" aria-label="Zoom in">+</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); zoomBy(1.25) }} className="grid h-9 w-9 place-items-center border-t border-line/60 text-sm font-bold text-ink hover:bg-leaf-50" aria-label="Zoom out">−</button>
         </div>
       </div>
 

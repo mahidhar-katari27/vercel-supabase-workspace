@@ -7,14 +7,22 @@ const KEY = 'agrismart-intro-seen'
 const ATTR = 'data-intro'
 
 function seenBefore(): boolean {
+  // localStorage makes the skip state persist across browser sessions, so
+  // returning users never rewatch (product requirement). sessionStorage is
+  // kept as a private-mode fallback.
   try {
-    return sessionStorage.getItem(KEY) === '1'
+    return localStorage.getItem(KEY) === '1' || sessionStorage.getItem(KEY) === '1'
   } catch {
     return false
   }
 }
 
 function markSeen() {
+  try {
+    localStorage.setItem(KEY, '1')
+  } catch {
+    /* private mode — fall through to session memory */
+  }
   try {
     sessionStorage.setItem(KEY, '1')
   } catch {
@@ -29,6 +37,11 @@ function markSeen() {
 }
 
 function clearSeen() {
+  try {
+    localStorage.removeItem(KEY)
+  } catch {
+    /* ignore */
+  }
   try {
     sessionStorage.removeItem(KEY)
   } catch {

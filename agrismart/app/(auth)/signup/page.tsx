@@ -65,7 +65,7 @@ export default function SignupPage() {
           </AuthNotice>
           <p className="text-xs leading-relaxed text-muted">
             Already confirmed?{' '}
-            <Link href="/login" className="font-bold text-leaf-700 underline-offset-4 hover:underline dark:text-leaf-300">Sign in</Link>.
+            <Link href="/login" className="inline-block -my-1.5 py-1.5 font-bold text-leaf-700 underline-offset-4 hover:underline dark:text-leaf-300">Sign in</Link>.
           </p>
         </div>
       </AuthShell>
@@ -148,7 +148,7 @@ export default function SignupPage() {
 
         <p className="pt-1 text-center text-xs font-semibold text-muted">
           Already have an account?{' '}
-          <Link href="/login" className="text-leaf-700 underline-offset-4 hover:underline dark:text-leaf-300">Sign in</Link>
+          <Link href="/login" className="inline-block -my-1.5 py-1.5 text-leaf-700 underline-offset-4 hover:underline dark:text-leaf-300">Sign in</Link>
         </p>
       </form>
     </AuthShell>

@@ -21,8 +21,8 @@
     --raised: 45 25% 98%;
     --line: 80 6% 78%;        /* hairline grey-green */
     --ink: 90 36% 7%;         /* #10160A charcoal green */
-    --muted: 120 3% 41%;      /* #646B64 sage */
-    --faint: 90 2% 62%;       /* #A7A7A6 */
+    --muted: 120 4% 37%;      /* sage — darkened one step: ≥4.5:1 on bone */
+    --faint: 90 2% 44%;       /* micro-label grey — darkened for AA on bone */
     --shadow: 90 30% 10%;
 
     --leaf-50: 70 22% 88%;
@@ -43,7 +43,7 @@
     --line: 90 12% 24%;
     --ink: 60 10% 92%;        /* bone ink on dark */
     --muted: 80 6% 64%;
-    --faint: 80 5% 48%;
+    --faint: 80 5% 54%;       /* lifted one step: ≥4.5:1 on the night field */
     --shadow: 0 0% 0%;
 
     --leaf-50: 90 24% 16%;
@@ -238,18 +238,6 @@
 }
 
 @layer utilities {
-  .text-gradient-leaf {
-    background: linear-gradient(120deg, #2aa468 0%, #7fcfa4 45%, #d4a537 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  .text-gradient-gold {
-    background: linear-gradient(120deg, #f2d68a, #d4a537);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
   .bg-noise {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
   }
@@ -257,6 +245,13 @@
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
   .tap-lg { min-height: 48px; min-width: 48px; }
+
+  /* Touch devices: give pill buttons and small buttons a thumb-friendly
+     minimum height (WCAG 2.5.8). Desktop stays compact. */
+  @media (pointer: coarse) {
+    button.rounded-full, a.rounded-full { min-height: 34px; }
+    .btn-sm { min-height: 36px; }
+  }
 }
 
 /* Thin, unobtrusive scrollbars */

@@ -129,7 +129,7 @@ export function Field({
             type="button"
             onClick={() => setShow((v) => !v)}
             aria-label={show ? 'Hide password' : 'Show password'}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg px-1.5 py-1 text-xs font-bold text-faint transition-colors hover:text-ink"
+            className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-sm font-bold text-faint transition-colors hover:text-ink"
           >
             {show ? '🙈' : '👁'}
           </button>

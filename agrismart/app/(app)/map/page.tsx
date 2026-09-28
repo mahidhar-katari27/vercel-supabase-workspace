@@ -444,7 +444,7 @@ function SmartMap() {
       <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] text-muted">
         <DemoTag />
         <span>Sample locations around Krishna &amp; Guntur districts. {isMapsConfigured() ? 'Live Google Places results replace these when configured.' : 'Configure a Google Maps key for live Places, Geocoding and Directions.'}</span>
-        <button type="button" onClick={() => setConfigure(true)} className="font-bold text-leaf-700 underline underline-offset-2">How?</button>
+        <button type="button" onClick={() => setConfigure(true)} className="rounded-lg px-2 py-1.5 font-bold text-leaf-700 underline underline-offset-2">How?</button>
       </div>
 
       <MapConfigureModal open={configure} onClose={() => setConfigure(false)} />

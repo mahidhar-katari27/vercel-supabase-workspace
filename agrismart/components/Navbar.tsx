@@ -19,12 +19,28 @@ export default function Navbar() {
   const [bell, setBell] = useState(false)
   const [profile, setProfile] = useState(false)
   const [more, setMore] = useState(false)
+  // Desktop pill budget: the centred pill list must never push the right
+  // cluster off-screen (measured overflow at 1024–1440). Tier the number of
+  // visible pills by breakpoint; everything else stays one click away in More.
+  const [wide, setWide] = useState(false) // ≥1536px
+  const [xl, setXl] = useState(false)     // ≥1280px
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
+    const qWide = window.matchMedia('(min-width: 1536px)')
+    const qXl = window.matchMedia('(min-width: 1280px)')
+    const upd = () => { setWide(qWide.matches); setXl(qXl.matches) }
+    upd()
+    qWide.addEventListener('change', upd)
+    qXl.addEventListener('change', upd)
+    return () => { qWide.removeEventListener('change', upd); qXl.removeEventListener('change', upd) }
   }, [])
 
   useEffect(() => { setSheet(false); setBell(false); setProfile(false); setMore(false) }, [pathname])
@@ -66,15 +82,15 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop — centred Rultiva pill nav */}
-            <div className="relative mx-auto hidden lg:block">
-              <div className="flex items-center gap-0.5 rounded-full bg-ink px-1.5 py-1.5 shadow-lift">
-                {navItems.filter((i) => i.group === 'main').map((item) => {
+            <div className="relative mx-auto hidden min-w-0 lg:block">
+              <div className="no-scrollbar flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full bg-ink px-1.5 py-1.5 shadow-lift">
+                {navItems.filter((i) => i.group === 'main').slice(0, user ? (wide ? 7 : 6) : (xl ? 6 : 5)).map((item) => {
                   const on = pathname === item.href
                   return (
                     <Link
                       key={item.href} href={item.href}
                       className={cn(
-                        'relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors',
+                        'relative shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] font-semibold transition-colors 2xl:px-3.5',
                         on ? 'text-ink' : 'text-bg/70 hover:text-bg',
                       )}
                     >
@@ -88,7 +104,7 @@ export default function Navbar() {
                 <button
                   type="button" onClick={() => setMore((v) => !v)} aria-expanded={more}
                   className={cn(
-                    'relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors',
+                    'relative shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] font-semibold transition-colors 2xl:px-3.5',
                     more ? 'text-ink' : 'text-bg/70 hover:text-bg',
                   )}
                 >
@@ -133,11 +149,11 @@ export default function Navbar() {
             </div>
 
             {/* Right cluster */}
-            <div className="ml-auto flex items-center gap-1 lg:ml-0">
+            <div className="ml-auto flex shrink-0 items-center gap-1 lg:ml-0">
               {!user ? (
-                <div className="mr-1 hidden items-center gap-2 xl:flex">
-                  <Link href="/login" className="btn-ghost !px-4 !py-2 text-xs">Login</Link>
-                  <Link href="/signup" className="btn btn-primary !px-4 !py-2 text-xs">Create Account</Link>
+                <div className="mr-1 hidden items-center gap-1.5 xl:flex">
+                  <Link href="/login" className="btn-ghost !px-3.5 !py-2 text-xs">Login</Link>
+                  <Link href="/signup" className="btn btn-primary !px-3.5 !py-2 text-xs">Create Account</Link>
                 </div>
               ) : (
                 <span className="mr-1 hidden items-center gap-1.5 rounded-full border border-leaf-500/40 bg-leaf-500/10 px-3 py-1.5 text-[11px] font-bold text-leaf-700 dark:text-leaf-300 xl:inline-flex">
@@ -190,8 +206,8 @@ export default function Navbar() {
                   className="tap-lg flex items-center gap-2 rounded-xl p-1 pr-2 transition-colors hover:bg-line/40"
                 >
                   <Avatar seed={farmer.avatarSeed} size={30} />
-                  <span className="hidden text-sm font-semibold xl:block">{displayName.split(' ')[0]}</span>
-                  <span className="hidden text-[10px] text-faint xl:block" aria-hidden>▾</span>
+                  <span className="hidden text-sm font-semibold 2xl:block">{displayName.split(' ')[0]}</span>
+                  <span className="hidden text-[10px] text-faint 2xl:block" aria-hidden>▾</span>
                 </button>
                 <AnimatePresence>
                   {profile && (

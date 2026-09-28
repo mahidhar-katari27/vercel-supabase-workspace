@@ -57,7 +57,7 @@ export const viewport: Viewport = {
  * Deliberately inline and blocking: deferring it to a React effect is what let
  * the website show for a frame before the intro.
  */
-const INTRO_BOOT = `(function(){try{var d=document.documentElement;var s=sessionStorage.getItem('agrismart-intro-seen')==='1';d.setAttribute('data-intro',s?'seen':'playing');if(s)d.style.background=''}catch(e){}})();`
+const INTRO_BOOT = `(function(){try{var d=document.documentElement;var k='agrismart-intro-seen';var s=localStorage.getItem(k)==='1'||sessionStorage.getItem(k)==='1';d.setAttribute('data-intro',s?'seen':'playing');if(s)d.style.background=''}catch(e){}})();`
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

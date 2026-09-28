@@ -8,7 +8,10 @@ export const dynamic = 'force-dynamic'
  * Live connection probe — server-side, so it can safely use the service key.
  * Powers the "Supabase connection" card on /admin.
  */
-export async function GET() {
+export async function GET(req: Request) {
+  // ?only=bookings — lightweight probe used by the client store so the
+  // browser never has to hit PostgREST directly (and never logs its 404s).
+  const only = new URL(req.url).searchParams.get('only')
   const at = new Date().toISOString()
   if (!supabaseConfigured() && !process.env.SUPABASE_SECRET_KEY) {
     return NextResponse.json({ configured: false, at })
@@ -23,6 +26,7 @@ export async function GET() {
   out.restMs = Date.now() - t0
   out.bookingsTable = !restErr || !isMissingTable(restErr)
   if (restErr && !out.bookingsTable) out.bookingsNote = 'migration 0001 not applied yet'
+  if (only === 'bookings') return NextResponse.json(out)
 
   const { data: buckets, error: bucketErr } = await sb.storage.listBuckets()
   out.storage = bucketErr ? `error: ${bucketErr.message}` : (buckets ?? []).map((b) => b.id)

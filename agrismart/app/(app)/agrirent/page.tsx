@@ -154,8 +154,8 @@ export default function AgriRentPage() {
                               {geo.serviceRadiusKm && <span className="text-muted">↔ {geo.serviceRadiusKm} km service radius</span>}
                             </div>
                             <div className="mt-2 flex flex-wrap gap-1.5">
-                              <Link href={`/map?focus=${geo.id}`} className="rounded-lg border border-line/70 bg-surface px-2.5 py-1.5 text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">📍 View on Map</Link>
-                              <Link href={`/map?focus=${geo.id}&route=1`} className="rounded-lg border border-line/70 bg-surface px-2.5 py-1.5 text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">🧭 Get Directions</Link>
+                              <Link href={`/map?focus=${geo.id}`} className="inline-flex min-h-[34px] items-center rounded-lg border border-line/70 bg-surface px-2.5 text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">📍 View on Map</Link>
+                              <Link href={`/map?focus=${geo.id}&route=1`} className="inline-flex min-h-[34px] items-center rounded-lg border border-line/70 bg-surface px-2.5 text-[10px] font-bold text-ink hover:border-leaf-500 hover:text-leaf-700">🧭 Get Directions</Link>
                               <a href={directionsUrl(farmer.coords, geo.coords)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-line/70 bg-surface px-2.5 py-1.5 text-[10px] font-bold text-ink hover:border-leaf-500">Open in Google Maps ↗</a>
                               <button type="button" disabled={!m.available} onClick={() => m.available && setMachineId(m.id)}
                                 className="rounded-lg bg-gold-400 px-2.5 py-1.5 text-[10px] font-bold text-ink hover:brightness-105 disabled:opacity-50">

@@ -33,6 +33,22 @@ export async function bookingsTableExists(force = false): Promise<boolean> {
   if (tableKnown !== null && !force) return tableKnown
   const sb = supabaseBrowser()
   if (!sb) { tableKnown = false; return false }
+  try {
+    // Ask the server route first: it probes PostgREST with the service key,
+    // so the 404 for a not-yet-migrated table never reaches the browser
+    // console. Same answer, no noise.
+    const res = await fetch('/api/system/supabase?only=bookings', { headers: { accept: 'application/json' } })
+    if (res.ok) {
+      const j = await res.json()
+      if (typeof j.bookingsTable === 'boolean') {
+        const known: boolean = j.bookingsTable
+        tableKnown = known
+        return known
+      }
+    }
+  } catch {
+    /* route unavailable (offline / static host) — fall through to direct probe */
+  }
   const { error } = await sb.from('bookings').select('id').limit(1)
   tableKnown = !error || !isMissingTable(error)
   return tableKnown

@@ -88,10 +88,10 @@ export default function LoginPage() {
         <GoogleButton onClick={google} busy={busy !== null} />
 
         <div className="flex items-center justify-between pt-2 text-xs font-semibold">
-          <Link href="/forgot-password" className="text-muted underline-offset-4 transition-colors hover:text-ink hover:underline">
+          <Link href="/forgot-password" className="inline-block -my-1 py-2 text-muted underline-offset-4 transition-colors hover:text-ink hover:underline">
             Forgot password?
           </Link>
-          <Link href="/signup" className="text-leaf-700 underline-offset-4 transition-colors hover:underline dark:text-leaf-300">
+          <Link href="/signup" className="inline-block -my-1 py-2 text-leaf-700 underline-offset-4 transition-colors hover:underline dark:text-leaf-300">
             Don&rsquo;t have an account? Create one
           </Link>
         </div>
