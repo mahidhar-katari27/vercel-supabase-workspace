@@ -1,12 +1,16 @@
 'use client'
 
-import { motion, useInView, AnimatePresence } from 'framer-motion'
+import { motion, useInView, AnimatePresence, useMotionValue } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { cn, inr, num, pct } from '@/lib/utils'
 
 /* ------------------------------------------------------------------ motion */
 
-export const spring = { type: 'spring' as const, stiffness: 260, damping: 26, mass: 0.7 }
+/** Cinematic motion language — calm, confident, no overshoot.
+ *  One shared curve so every surface moves like the same product. */
+export const spring = { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }
+export const CINE = [0.22, 1, 0.36, 1] as const
+export const CINE_SLOW = { duration: 1.1, ease: CINE }
 
 export const fadeUp = {
   hidden: { opacity: 0, y: 18 },
@@ -17,24 +21,91 @@ export const fadeUp = {
 }
 
 /** Reveal-on-scroll wrapper. Falls back to a plain div under reduced motion. */
+type RevealVariant = 'up' | 'left' | 'right' | 'scale' | 'mask'
+
+const REVEAL_INIT: Record<RevealVariant, Record<string, number | string>> = {
+  up: { opacity: 0, y: 22 },
+  left: { opacity: 0, x: -34 },
+  right: { opacity: 0, x: 34 },
+  scale: { opacity: 0, scale: 0.94 },
+  mask: { opacity: 0, clipPath: 'inset(0 0 100% 0)' },
+}
+const REVEAL_IN: Record<RevealVariant, Record<string, number | string>> = {
+  up: { opacity: 1, y: 0 },
+  left: { opacity: 1, x: 0 },
+  right: { opacity: 1, x: 0 },
+  scale: { opacity: 1, scale: 1 },
+  mask: { opacity: 1, clipPath: 'inset(0 0 0% 0)' },
+}
+
+/** Scroll reveal with per-section motion behaviour (spec §6). */
 export function Reveal({
-  children, className, delay = 0, y = 18, as = 'div',
+  children, className, delay = 0, y = 18, as = 'div', variant = 'up',
 }: {
-  children: React.ReactNode; className?: string; delay?: number; y?: number; as?: 'div' | 'section' | 'li'
+  children: React.ReactNode; className?: string; delay?: number; y?: number
+  as?: 'div' | 'section' | 'li'; variant?: RevealVariant
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-60px' })
   const Tag = motion[as] as typeof motion.div
+  const init = variant === 'up' ? { ...REVEAL_INIT.up, y } : REVEAL_INIT[variant]
   return (
     <Tag
       ref={ref as never}
       className={className}
-      initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : undefined}
+      initial={init}
+      animate={inView ? REVEAL_IN[variant] : undefined}
       transition={{ ...spring, delay }}
     >
       {children}
     </Tag>
+  )
+}
+
+/** Cinematic image reveal — mask opens while the plate settles (spec §17). */
+export function ImageReveal({
+  children, className, delay = 0,
+}: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: '-40px' })
+  return (
+    <div ref={ref} className={cn('overflow-hidden', className)}>
+      <motion.div
+        initial={{ clipPath: 'inset(0 0 100% 0)', scale: 1.12 }}
+        animate={inView ? { clipPath: 'inset(0 0 0% 0)', scale: 1 } : undefined}
+        transition={{ duration: 1.15, ease: CINE, delay }}
+        className="h-full w-full"
+      >
+        {children}
+      </motion.div>
+    </div>
+  )
+}
+
+/** Desktop-only magnetic pull for primary CTAs (spec §16). Restrained: ≤6px. */
+export function Magnetic({ children, className, strength = 6 }: { children: React.ReactNode; className?: string; strength?: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const enabled = typeof window !== 'undefined'
+    && window.matchMedia?.('(pointer: fine)')?.matches
+    && !window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+  return (
+    <motion.div
+      ref={ref}
+      className={cn('inline-block', className)}
+      style={enabled ? { x, y } : undefined}
+      onMouseMove={(e) => {
+        if (!enabled || !ref.current) return
+        const r = ref.current.getBoundingClientRect()
+        x.set(((e.clientX - (r.left + r.width / 2)) / r.width) * strength * 2)
+        y.set(((e.clientY - (r.top + r.height / 2)) / r.height) * strength)
+      }}
+      onMouseLeave={() => { x.set(0); y.set(0) }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
+      {children}
+    </motion.div>
   )
 }
 

@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
-import { Counter, DemoTag, Reveal, SectionHeading, StatCard, spring } from '@/components/ui'
+import { motion, useMotionValue, useTransform } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Counter, DemoTag, Magnetic, Reveal, SectionHeading, StatCard, spring } from '@/components/ui'
 import MapCanvas from '@/components/maps/MapCanvas'
 import { categoryColor } from '@/lib/googleMaps'
 import { categoryMeta, geoPlaces } from '@/lib/places'
@@ -36,106 +37,7 @@ export default function LandingPage() {
   return (
     <>
       {/* ------------------------------------------------------------- hero */}
-      <section className="relative overflow-hidden pt-6 sm:pt-10">
-        <div className="vlines pointer-events-none absolute inset-0 opacity-50" aria-hidden />
-        <span className="spark absolute left-[11%] top-24 text-2xl" aria-hidden>✦</span>
-        <span className="spark absolute right-[13%] top-40 text-sm" aria-hidden>✦</span>
-        <span className="spark absolute left-[27%] top-80 text-sm" aria-hidden>＋</span>
-        <span className="spark absolute right-[25%] top-96 text-lg" aria-hidden>✦</span>
-
-        <div className="section relative text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={spring}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-line/70 bg-surface/70 px-4 py-1.5 text-[11px] font-bold tracking-wide text-muted"
-          >
-            <span className="relative flex h-1.5 w-1.5" aria-hidden>
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-leaf-400 opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-leaf-500" />
-            </span>
-            Top-Notch Agri Intelligence Platform
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.06 }}
-            className="mx-auto max-w-4xl font-display text-[2.9rem] font-semibold leading-[1.02] tracking-[-0.03em] sm:text-6xl lg:text-[4.6rem]"
-          >
-            Agriculture,
-            <br />
-            Made Smarter.
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.14 }}
-            className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-muted sm:text-base"
-          >
-            Plan your farm, understand your crops, track your money,
-            and make better farming decisions.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.22 }}
-            className="mt-8 flex flex-wrap items-center justify-center gap-3"
-          >
-            <Link href="/start" className="btn btn-primary btn-lg group">
-              <span aria-hidden>🌱</span> Start Farming
-              <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden>→</span>
-            </Link>
-            <Link href="/dashboard" className="btn btn-ghost btn-lg">Explore AgriSmart</Link>
-            <Link href="/crop-doctor" className="btn btn-quiet btn-lg"><span aria-hidden>🤖</span> AI Crop Doctor</Link>
-          </motion.div>
-          <motion.p
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.7 }}
-            className="mt-4 text-[11px] text-faint"
-          >
-            25+ modules · 3 languages · 5 user roles · demo data clearly labelled
-          </motion.p>
-        </div>
-
-        {/* full-bleed photo band */}
-        <motion.div
-          initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.18 }}
-          className="relative mt-12 h-[380px] w-full sm:h-[460px]"
-        >
-          <Image src="/start/hero.jpg" alt="Farmer walking a young field at sunrise" fill priority sizes="100vw" className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" aria-hidden />
-          {/* progressive live-looking data rail — WEATHER → CROP → WATER → MARKET */}
-          <div className="absolute left-5 top-1/2 hidden -translate-y-1/2 sm:block" aria-hidden={false}>
-            <div className="relative flex flex-col gap-3">
-              <span className="absolute bottom-4 left-[13px] top-4 w-px bg-white/25" aria-hidden />
-              {[
-                ['WEATHER', '🌦', '28°C', 'Partly cloudy · Vijayawada'],
-                ['CROP', '🌾', 'Paddy', 'Vegetative stage · day 68'],
-                ['WATER', '💧', 'Soil moisture 64%', 'Borewell + rainfed'],
-                ['MARKET', '₹', '₹48,500 est. return', 'Sample estimate only'],
-              ].map(([tag, icon, val, sub], i) => (
-                <motion.div
-                  key={tag}
-                  initial={{ opacity: 0, x: -14 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ ...spring, delay: 0.25 + i * 0.35 }}
-                  className="relative flex items-center gap-3 rounded-2xl border border-white/15 bg-black/35 px-3.5 py-2.5 backdrop-blur-md"
-                >
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/12 text-sm" aria-hidden>{icon}</span>
-                  <span>
-                    <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/60">{tag}</span>
-                    <span className="block text-sm font-bold leading-tight text-white">{val}</span>
-                    <span className="block text-[10px] text-white/60">{sub}</span>
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-          <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-3 p-6 sm:p-10">
-            <p className="max-w-sm font-display text-2xl font-semibold leading-tight text-white sm:text-3xl">
-              The journey from soil to sale — in one picture.
-            </p>
-            <Link href="/demo" className="text-xs font-semibold text-white/85 underline-offset-4 hover:underline">
-              Book a free demo experience
-            </Link>
-          </div>
-        </motion.div>
-      </section>
+      <HeroCinema />
 
       {/* -------------------------------------------------------- stats bar */}
       <section className="section">
@@ -146,7 +48,7 @@ export default function LandingPage() {
             ['120,000+', 'Farmers reached statewide'],
             ['₹15 Billion', 'Agricultural produce tracked'],
           ].map(([v, l], i) => (
-            <Reveal key={l} delay={i * 0.06}>
+            <Reveal key={l} delay={i * 0.06} variant="mask">
               <div className="px-6 text-center md:text-left">
                 <p className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{v}</p>
                 <p className="mt-1 text-xs text-muted">{l}</p>
@@ -171,7 +73,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div>
-            <Reveal>
+            <Reveal variant="left">
               <h2 className="max-w-2xl font-display text-3xl font-semibold leading-[1.15] tracking-[-0.02em] sm:text-[2.6rem]">
                 Despite advances in agri-tech, labour-intensive farming still runs on
                 guesswork — scattered prices, weather surprises and paper records.
@@ -367,7 +269,7 @@ export default function LandingPage() {
             </Reveal>
           ))}
         </div>
-        <Reveal delay={0.2}>
+        <Reveal delay={0.2} variant="scale">
           <div className="mt-6 text-center">
             <Link href="/demo" className="btn btn-gold btn-lg">
               <span aria-hidden>▶</span> Run the guided demo
@@ -532,4 +434,141 @@ function Card2({ title, icon, right, children }: { title: string; icon: string; 
 
 function cnUpDown(up: boolean, extra = '') {
   return `${extra} ${up ? 'text-leaf-600 dark:text-leaf-400' : 'text-red-500'} font-bold tabular-nums`
+}
+
+/* ---------------------------------------------- cinematic hero (spec §4–5) */
+
+function HeroCinema() {
+  const ref = useRef<HTMLElement | null>(null)
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const bgX = useTransform(mx, (v) => v * -10)
+  const bgY = useTransform(my, (v) => v * -6)
+  const fgX = useTransform(mx, (v) => v * 16)
+  const fgY = useTransform(my, (v) => v * 10)
+
+  const onMove = (e: React.MouseEvent) => {
+    if (typeof window === 'undefined') return
+    if (!window.matchMedia?.('(pointer: fine)')?.matches) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return
+    if (window.innerWidth < 1024) return
+    const r = ref.current?.getBoundingClientRect()
+    if (!r) return
+    mx.set((e.clientX - r.left) / r.width - 0.5)
+    my.set((e.clientY - r.top) / r.height - 0.5)
+  }
+
+  return (
+    <section
+      ref={ref as never}
+      onMouseMove={onMove}
+      onMouseLeave={() => { mx.set(0); my.set(0) }}
+      className="relative flex min-h-[92vh] items-center justify-center overflow-hidden pb-28 pt-28"
+    >
+      {/* landscape layer — moves extremely slightly */}
+      <motion.div style={{ x: bgX, y: bgY }} className="absolute inset-0 scale-[1.08]" aria-hidden>
+        <Image src="/intro/aerial.jpg" alt="" fill priority sizes="100vw" className="object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-bg" />
+        <motion.div
+          className="absolute inset-0 mix-blend-screen"
+          style={{ background: 'linear-gradient(105deg, transparent 34%, rgba(255,214,150,0.16) 48%, transparent 64%)' }}
+          animate={{ x: ['-40%', '40%'] }}
+          transition={{ duration: 14, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+        />
+      </motion.div>
+
+      {/* foreground layer — moves slightly faster (cinematic depth) */}
+      <motion.div style={{ x: fgX, y: fgY }} className="section relative text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.1 }}
+          className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-1.5 text-[11px] font-bold tracking-wide text-white/85 backdrop-blur-md"
+        >
+          <span className="relative flex h-1.5 w-1.5" aria-hidden>
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-leaf-400 opacity-75" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-leaf-400" />
+          </span>
+          Top-Notch Agri Intelligence Platform
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.18 }}
+          className="mx-auto max-w-4xl font-display text-[2.9rem] font-semibold leading-[1.02] tracking-[-0.03em] text-white sm:text-6xl lg:text-[4.6rem]"
+        >
+          Agriculture,
+          <br />
+          Made Smarter.
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.28 }}
+          className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/80 sm:text-base"
+        >
+          Plan your farm, understand your crops, track your money,
+          and make better farming decisions.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.38 }}
+          className="mt-8 flex flex-wrap items-center justify-center gap-3"
+        >
+          <Magnetic>
+            <Link href="/start" className="btn btn-primary btn-lg group">
+              <span aria-hidden>🌱</span> Start Farming
+              <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden>→</span>
+            </Link>
+          </Magnetic>
+          <Magnetic strength={4}>
+            <Link href="/dashboard" className="btn btn-lg border border-white/25 bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20">
+              Explore AgriSmart
+            </Link>
+          </Magnetic>
+          <Link href="/crop-doctor" className="btn btn-lg bg-transparent text-white/85 underline-offset-4 hover:underline">
+            <span aria-hidden>🤖</span> AI Crop Doctor
+          </Link>
+        </motion.div>
+        <motion.p
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.8 }}
+          className="mt-5 text-[11px] text-white/60"
+        >
+          25+ modules · 3 languages · 5 user roles · demo data clearly labelled
+        </motion.p>
+      </motion.div>
+
+      {/* minimal smart-farm indicators pinned to the land (intro language) */}
+      <div className="absolute inset-x-0 bottom-8 hidden justify-center lg:flex">
+        <div className="relative flex items-center gap-3">
+          <span className="absolute inset-x-8 top-1/2 h-px bg-white/20" aria-hidden />
+          {[
+            ['🌦', 'WEATHER', '28°C · partly cloudy'],
+            ['🌱', 'CROP', 'Paddy · day 68'],
+            ['💧', 'WATER', 'Soil moisture 64%'],
+            ['📈', 'MARKET', '₹48,500 est. return · Sample estimate only'],
+          ].map(([icon, tag, val], i) => (
+            <motion.div
+              key={tag}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...spring, delay: 0.9 + i * 0.3 }}
+              className="relative flex items-center gap-2.5 rounded-full border border-white/15 bg-black/40 px-4 py-2 backdrop-blur-md"
+            >
+              <span className="text-sm" aria-hidden>{icon}</span>
+              <span>
+                <span className="block text-[8.5px] font-bold uppercase tracking-[0.16em] text-white/55">{tag}</span>
+                <span className="block text-[11px] font-semibold text-white/90">{val}</span>
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* scroll cue */}
+      <motion.div
+        className="absolute bottom-3 left-1/2 -translate-x-1/2 text-white/50"
+        animate={{ y: [0, 6, 0] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+        aria-hidden
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M6 9l6 6 6-6" /></svg>
+      </motion.div>
+    </section>
+  )
 }

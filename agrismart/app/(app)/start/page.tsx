@@ -258,6 +258,14 @@ function Results({
         </Card>
       )}
 
+      {plan && (
+        <motion.p
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="mb-4 text-sm font-semibold text-muted"
+        >
+          Based on your farm — {plan.location.district || plan.location.village || 'your location'}, {plan.plots.reduce((a, pl) => a + pl.acres, 0)} acres, {plan.soil} soil, {plan.waterSource} water:
+        </motion.p>
+      )}
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {order.map((r, i) => {
           const crop = cropInfo(r.crop)

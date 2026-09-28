@@ -47,7 +47,11 @@ export function CropCard({
   const eco = useMemo(() => (plan ? economics(plan, crop.key) : null), [plan, crop.key])
   const risk = riskLevel(crop, fit)
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}>
+    <motion.div
+      initial={isTop ? { opacity: 0, y: 26, scale: 0.965 } : { opacity: 0, x: 30 }}
+      animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: isTop ? delay : 0.55 + delay }}
+    >
       <Card hover className={cn('flex h-full flex-col overflow-hidden', selected && 'ring-2 ring-leaf-400/70')}>
         <div className="relative mb-4 h-36 overflow-hidden rounded-2xl">
           <Image src={vis.image} alt={`${vis.label} field`} fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover" />

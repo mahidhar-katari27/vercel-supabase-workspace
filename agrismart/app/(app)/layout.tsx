@@ -1,4 +1,5 @@
 import Navbar from '@/components/Navbar'
+import PageFade from '@/components/PageFade'
 import AIAssistant from '@/components/AIAssistant'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -16,7 +17,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         // Room for the fixed top bar, plus the mobile bottom nav on phones.
         className="pt-24 pb-28 sm:pt-28 lg:pb-16"
       >
-        {children}
+        <PageFade>{children}</PageFade>
       </main>
 
       <AIAssistant />

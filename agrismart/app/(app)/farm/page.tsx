@@ -191,7 +191,7 @@ export default function FarmPage() {
               <h2 className="font-display text-lg font-semibold tracking-tight">Your farm map</h2>
               <span className="text-[11px] text-faint">Plot areas are proportional to acreage — tap a plot for its overview</span>
             </div>
-            <motion.div initial={{ scale: 1.1 }} animate={{ scale: 1 }} transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}>
+            <motion.div key={dashboard ?? 'all'} initial={{ scale: 1.07, opacity: 0.75 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}>
               <svg viewBox="0 0 800 240" className="w-full" role="img" aria-label="Farm plots, sized by acreage">
                 {(() => {
                   let x = 10

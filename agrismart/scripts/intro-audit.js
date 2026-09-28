@@ -52,7 +52,7 @@ const URL = process.argv[2] || 'http://127.0.0.1:3000/';
       };
     });
 
-    await page.screenshot({ path: `/tmp/shot-${vp.name}-1first.png` });
+    await page.screenshot({ path: `/tmp/shot-${vp.name}-1first.png` }).catch(() => {});
 
     // ---- MID INTRO (scene 3, the field) ----
     await page.waitForTimeout(3600);
@@ -76,7 +76,7 @@ const URL = process.argv[2] || 'http://127.0.0.1:3000/';
       };
     });
 
-    await page.screenshot({ path: `/tmp/shot-${vp.name}-2mid.png` });
+    await page.screenshot({ path: `/tmp/shot-${vp.name}-2mid.png` }).catch(() => {});
 
     // ---- LOGO SCENE ----
     await page.waitForTimeout(1400);

@@ -346,25 +346,6 @@ html[data-intro='playing'] {
   background: #10160a;
 }
 
-/* Every animation layer lives inside the overlay and fills it. */
-.intro-layer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* The cinematic scene covers edge-to-edge. The SVG uses
-   preserveAspectRatio="xMidYMid slice" — the equivalent of object-fit:
-   cover — so it fills and crops rather than letterboxing. */
-.intro-stage {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
 /* Skip button: bottom-right, above every animation layer, and clear of
    notches / rounded corners via safe-area insets. */
 .intro-skip {
@@ -379,16 +360,6 @@ html[data-intro='playing'] {
     right: calc(16px + env(safe-area-inset-right, 0px));
     bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   }
-}
-
-/* Timeline bar sits flush to the physical bottom edge, inset-aware. */
-.intro-progress {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 3px;
-  z-index: 35;
 }
 
 @media (prefers-reduced-motion: reduce) {

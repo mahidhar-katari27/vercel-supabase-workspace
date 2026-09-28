@@ -230,12 +230,12 @@ export default function CropDoctorPage() {
                         <>
                           {/* subtle scanning line sweeping the sample */}
                           <motion.div
-                            className="absolute inset-x-0 h-10 bg-gradient-to-b from-transparent via-leaf-400/45 to-transparent"
+                            className="absolute inset-x-0 h-10 bg-gradient-to-b from-transparent via-white/55 to-transparent"
                             initial={{ y: -40 }} animate={{ y: 300 }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                             aria-hidden
                           />
                           <motion.div
-                            className="absolute inset-0 bg-leaf-400/10"
+                            className="absolute inset-0 bg-white/10"
                             animate={{ opacity: [0.15, 0.4, 0.15] }} transition={{ duration: 1.5, repeat: Infinity }}
                             aria-hidden
                           />
