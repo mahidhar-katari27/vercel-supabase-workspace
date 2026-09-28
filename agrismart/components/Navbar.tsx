@@ -69,14 +69,19 @@ export default function Navbar() {
                   <Link
                     key={item.href} href={item.href}
                     className={cn(
-                      'relative rounded-xl px-3 py-2 text-[13px] font-semibold transition-colors duration-200',
+                      'relative whitespace-nowrap rounded-xl px-3 py-2 text-[13px] font-semibold transition-colors duration-200',
                       on ? 'text-white' : 'text-muted hover:text-ink',
                     )}
                   >
                     {on && (
                       <motion.span layoutId="nav-pill" className="absolute inset-0 -z-10 rounded-xl bg-leaf-gradient shadow-glow" transition={spring} />
                     )}
-                    {item.label}
+                    {item.short ? (
+                      <>
+                        <span className="xl:hidden">{item.short}</span>
+                        <span className="hidden xl:inline">{item.label}</span>
+                      </>
+                    ) : item.label}
                   </Link>
                 )
               })}

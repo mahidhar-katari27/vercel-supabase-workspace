@@ -1,11 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Card, Chip, DemoTag, PageHeader, Reveal, spring } from '@/components/ui'
 import { LineChart } from '@/components/charts'
 import { alerts, farmer, weather, type Alert } from '@/lib/data'
+import type { LiveWeather } from '@/lib/weather'
+import { fetchLiveWeather, weatherAdvice } from '@/lib/weather'
+import type { FarmPlan } from '@/lib/farmPlan'
+import { loadPlan, stageAt } from '@/lib/farmPlan'
+import { cropInfo } from '@/lib/cropDb'
 import { cn } from '@/lib/utils'
 
 const toneStyle: Record<Alert['tone'], { bar: string; chip: 'danger' | 'demo' | 'info' | 'live'; bg: string }> = {
@@ -51,6 +56,9 @@ export default function WeatherPage() {
           </button>
         </div>
       </PageHeader>
+
+      {/* ------------------------------------------------- live forecast */}
+      <LiveWeatherCard />
 
       <div className="mb-5 rounded-3xl border border-gold-400/35 bg-gold-400/10 p-4 text-sm leading-relaxed text-muted">
         <p className="mb-1 font-bold text-gold-600 dark:text-gold-400">◆ Sample forecast — no weather API connected</p>
@@ -209,5 +217,86 @@ export default function WeatherPage() {
         <Link href="/notifications" className="btn btn-quiet">🔔 All notifications</Link>
       </div>
     </div>
+  )
+}
+
+/* ------------------------------------------------------ live weather card */
+
+function LiveWeatherCard() {
+  const [w, setW] = useState<LiveWeather | null>(null)
+  const [place, setPlace] = useState(farmer.location)
+  const [plan, setPlan] = useState<FarmPlan | null>(null)
+
+  useEffect(() => {
+    let alive = true
+    const plan = loadPlan()
+    setPlan(plan)
+    const lat = plan?.location.lat ?? farmer.coords.lat
+    const lng = plan?.location.lng ?? farmer.coords.lng
+    const label = plan?.chosenCrop
+      ? `${plan.location.village || plan.location.district || farmer.location}`
+      : farmer.location
+    setPlace(label)
+    fetchLiveWeather(lat, lng, label).then((r) => { if (alive) setW(r) })
+    return () => { alive = false }
+  }, [])
+
+  const advice = w && plan?.chosenCrop
+    ? weatherAdvice(cropInfo(plan.chosenCrop), stageAt(plan, plan.chosenCrop).stage.name, w)
+    : []
+
+  return (
+    <Reveal>
+      <Card className="mb-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-bold">📡 Live forecast — {place}</h2>
+          {w
+            ? (w.source === 'live'
+              ? <Chip tone="live" icon="📡">Live · {w.provider}</Chip>
+              : <Chip tone="demo" icon="◆">Sample — live API unreachable</Chip>)
+            : <Chip>Fetching…</Chip>}
+        </div>
+        {w && (
+          <>
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
+              {w.days.map((d, i) => (
+                <div key={d.date} className={cn('rounded-2xl border p-3 text-center',
+                  i === 0 ? 'border-leaf-400/50 bg-leaf-400/5' : 'border-line/50 bg-surface-2/40 dark:bg-black/10')}>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-faint">{i === 0 ? 'Today' : d.label}</p>
+                  <p className="mt-1 text-base font-bold tabular-nums">{d.hi}°</p>
+                  <p className="text-[10px] tabular-nums text-muted">{d.lo}° · 🌧{d.rain}%</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              <Chip icon="🌡️">Now {w.tempC}°C</Chip>
+              <Chip icon="💧">Humidity {w.humidity}%</Chip>
+              <Chip icon="🍃">Wind {w.windKph} km/h</Chip>
+              <Chip icon="🕒">Fetched {new Date(w.fetchedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</Chip>
+            </div>
+            {advice.length > 0 && (
+              <div className="mt-4 space-y-2 border-t border-line/50 pt-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted">
+                  🌱 For your plan crop{plan?.chosenCrop ? ` (${cropInfo(plan.chosenCrop).key})` : ''}
+                </p>
+                {advice.slice(0, 4).map((a) => (
+                  <p key={a.text} className={cn('flex items-start gap-2 text-xs leading-relaxed',
+                    a.level === 'alert' ? 'text-red-500' : 'text-muted')}>
+                    <span aria-hidden>{a.icon}</span>{a.text}
+                  </p>
+                ))}
+                <Link href="/start" className="btn-quiet text-[11px]">Open farm plan →</Link>
+              </div>
+            )}
+            <p className="mt-3 text-[11px] text-faint">
+              {w.source === 'live'
+                ? 'Forecast data: Open-Meteo (free, open weather API) for your plan/farm coordinates. The sections below use the labelled demo dataset.'
+                : 'Live weather could not be reached — showing clearly-labelled sample values. Sections below use the labelled demo dataset.'}
+            </p>
+          </>
+        )}
+        {!w && <div className="h-28 animate-pulse rounded-2xl bg-surface-2/60 dark:bg-black/10" aria-hidden />}
+      </Card>
+    </Reveal>
   )
 }

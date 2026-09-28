@@ -18,6 +18,11 @@ import {
   type Diagnosis,
 } from './data'
 import { inr, seeded } from './utils'
+import { cropKeyForName } from './crops'
+import { cropInfo, cropVisual } from './cropDb'
+import {
+  budgetPerAcre, economics, loadPlan, rankCrops, stageAt, totalAcres,
+} from './farmPlan'
 
 export type Reply = {
   text: string
@@ -75,6 +80,17 @@ const HEDGE =
 
 export function assistantReply(raw: string): Reply {
   const t = norm(raw)
+
+  /* ------------------------------------------- start farming / plan context */
+  const PLAN_WORDS = ['start farming', 'farm plan', 'my plan', 'which crop', 'what crop', 'what to grow',
+    'which to grow', 'crop choose', 'choose crop', 'new farmer', 'beginner', 'first time', 'emi veyali',
+    'emi pantaru', 'emi cheyali', 'plan cheppu', 'start cheyali', 'kothaga', 'not know what']
+  const cropMentioned = extractCrop(t)
+  const acresMentioned = extractAcres(t)
+  if (has(t, PLAN_WORDS) || (cropMentioned && loadPlan())) {
+    const r = planReply(t, cropMentioned, acresMentioned)
+    if (r) return r
+  }
 
   /* ------------------------------------------------------- navigation verbs */
   if (has(t, ['crop doctor', 'cropdoctor', 'doctor open', 'open doctor', 'upload image', 'image check', 'cheyyi', 'open cheyyi'])) {
@@ -237,3 +253,71 @@ export const doctorDisclaimer =
 
 export const assistantDisclaimer =
   'Answers are general assistance generated from sample demo data. They are not professional agricultural, financial or legal advice.'
+
+/* ---------------------------------------------------------- plan responder */
+
+/**
+ * Answers with the saved Start Farming plan as context (single source of
+ * truth). Explains the 1-acre → total-land maths transparently, asks for
+ * missing information when there is no plan, and switches register between
+ * English, Telugu and Tenglish based on how the farmer typed.
+ * All figures are labelled estimates — never guarantees.
+ */
+function planReply(t: string, cropMentioned: string | null, acresMentioned: number | null): Reply | null {
+  const plan = loadPlan()
+  const te = /[\u0C00-\u0C7F]/.test(t)
+  const tg = !te && /(naaku|naku|enti|cheppu|kavali|undi|emi|veyali|pantaru|avtundi|chesey|cheyyali)/.test(t)
+
+  if (!plan) {
+    if (!cropMentioned) {
+      return {
+        text:
+          (te ? 'నేను మీకు పూర్తి ఫార్మ్ ప్లాన్ తయారు చేయగలను 🌱 ' : tg ? 'Nenu mee kosam full farm plan tayaru cheyagalanu 🌱 ' : 'I can build you a complete farm plan 🌱 ') +
+          'I just need 7 things: (1) your village & district, (2) land size in acres/cents, (3) soil type — "don\'t know" is fine, (4) water source, (5) your budget, (6) your goal (income, family food, low water…), (7) when you want to start. ' +
+          'The Start Farming wizard asks these one by one in about 2 minutes — or tell me here and I\'ll guide you.',
+        navigate: { href: '/start', label: '🌱 Open Start Farming wizard' },
+        chips: ['Naaku 2 acres undi, emi veyali?', 'I have ₹1 lakh budget', 'Which crop needs less water?'],
+      }
+    }
+    return null // no plan + specific crop question → existing rules answer it
+  }
+
+  const acresPlan = totalAcres(plan)
+  const acres = acresMentioned ?? acresPlan
+  const key = cropMentioned ? cropKeyForName(cropMentioned) : plan.chosenCrop || rankCrops(plan)[0]!.crop
+  const crop = cropInfo(key)
+  const vis = cropVisual(key)
+  const eco = economics({ ...plan, plots: [{ acres, cents: 0 }] }, key)
+  const where = `${plan.location.village || plan.location.district || 'your area'}`
+  const stage = plan.chosenCrop === key ? stageAt(plan, key) : null
+
+  if (cropMentioned || plan.chosenCrop === key) {
+    return {
+      text:
+        (te ? `మీ ఫార్మ్ ప్లాన్ ప్రకారం (${where}): ` : tg ? `Mee farm plan prakaram (${where}): ` : `From your farm plan (${where}): `) +
+        `${vis.icon} ${vis.label} on ${Math.round(acres * 100) / 100} acres — ` +
+        `1 acre costs ≈ ${inr(eco.cost)} (seeds ${inr(eco.costRows[0]!.value)}, fertilizer ${inr(eco.costRows[1]!.value)}, labour ${inr(eco.costRows[3]!.value)}, machinery ${inr(eco.costRows[4]!.value)}, irrigation ${inr(eco.costRows[5]!.value)} + pest/transport/other). ` +
+        `So ${Math.round(acres * 100) / 100} acres ≈ ${inr(eco.total.cost)} total investment. ` +
+        `Expected yield ≈ ${eco.yieldQ} q/acre at ≈ ${inr(eco.pricePerQ)}/qtl${eco.priceRef ? ` (${eco.priceRef.market}, ${eco.priceRef.date})` : ''} → revenue ≈ ${inr(eco.total.revenue)}, profit ≈ ${inr(eco.total.profit)}.` +
+        (stage ? ` Right now your crop is in the ${stage.stage.name} stage (day ${stage.day} of ~${stage.total}).` : '') +
+        ` Your budget: ${inr(budgetPerAcre(plan))}/acre. All figures are estimates — not guaranteed.`,
+      navigate: { href: '/start', label: '📋 Open my Farm Plan' },
+      chips: [`Why ${vis.label}?`, 'Compare with another crop', 'Today\'s farm tasks cheppu'],
+      tone: 'normal',
+    }
+  }
+
+  const ranked = rankCrops(plan).slice(0, 3).map((r) => {
+    const c = cropVisual(r.crop)
+    return `${c.icon} ${c.label} (${r.score}% fit)`
+  })
+  return {
+    text:
+      (te ? `మీ ప్లాన్ వివరాలు: ${where}, ${Math.round(acresPlan * 100) / 100} ఎకరాలు, ` : tg ? `Mee plan: ${where}, ${Math.round(acresPlan * 100) / 100} acres, ` : `Your farm plan: ${where}, ${Math.round(acresPlan * 100) / 100} acres, `) +
+      `${plan.soil === 'unknown' ? 'soil test pending' : plan.soil + ' soil'}, ${plan.waterSource} water, budget ${inr(budgetPerAcre(plan))}/acre. ` +
+      `Top matches for you: ${ranked.join(', ')} — fit % is indicative, not a guarantee. ` +
+      `Open the plan for full economics, live weather and your crop calendar.`,
+    navigate: { href: '/start', label: '📋 Open my Farm Plan' },
+    chips: [cropMentioned ? `Why ${cropMentioned}?` : 'Why this ranking?', 'Today\'s farm tasks cheppu', 'Machinery kavali'],
+  }
+}

@@ -9,10 +9,18 @@ import {
   alerts, bookings, farmer, financeSummary, lands, marketRows,
   monthlyFinance, notifications, priceHistory, weather,
 } from '@/lib/data'
-import { greeting, inr, timeAgo, todayLabel } from '@/lib/utils'
+import { greeting, inr, timeAgo, todayLabel, cn } from '@/lib/utils'
+import type { FarmPlan } from '@/lib/farmPlan'
+import {
+  loadDoneTasks, loadPlan, onPlanChange, saveDoneTasks, stageAt,
+  tasksForToday, todayKey, totalAcres,
+} from '@/lib/farmPlan'
+import { cropVisual } from '@/lib/cropDb'
+import { useEffect, useState } from 'react'
 
 const QUICK = [
-  { href: '/crop-doctor', icon: '🤖', label: 'AI Crop Doctor' },
+  { href: '/start', icon: '🌱', label: 'Start Farming' },
+  { href: '/crop-doctor', icon: '🤖', label: 'AI Crop Doctor'},
   { href: '/finance', icon: '💰', label: 'Farm Finance' },
   { href: '/agrirent', icon: '🚜', label: 'Rent Machinery' },
   { href: '/schemes', icon: '🏛️', label: 'Check Schemes' },
@@ -75,7 +83,7 @@ export default function DashboardPage() {
       {/* ---------------------------------------------------- quick actions */}
       <Reveal delay={0.1}>
         <div className="mt-6">
-          <div className="no-scrollbar -mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-6">
+          <div className="no-scrollbar -mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0 lg:grid-cols-7">
             {QUICK.map((q) => (
               <Link key={q.href} href={q.href}
                 className="glass card-hover flex min-w-[132px] shrink-0 flex-col items-center gap-2 rounded-3xl px-4 py-4 text-center sm:min-w-0">
@@ -86,6 +94,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </Reveal>
+
+      {/* ------------------------------------------------- start farming */}
+      <StartFarmingStrip />
 
       {/* -------------------------------------------------- weather + alerts */}
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
@@ -413,5 +424,105 @@ function FieldArt({ progress }: { progress: number }) {
         )
       })}
     </svg>
+  )
+}
+
+/* ------------------------------------------------------- start farming */
+
+function StartFarmingStrip() {
+  const [plan, setPlan] = useState<FarmPlan | null>(null)
+  const [done, setDone] = useState<Record<string, boolean>>({})
+  const dayKey = todayKey()
+
+  useEffect(() => {
+    setPlan(loadPlan())
+    setDone(loadDoneTasks()[dayKey] ?? {})
+    return onPlanChange(() => {
+      setPlan(loadPlan())
+      setDone(loadDoneTasks()[dayKey] ?? {})
+    })
+  }, [dayKey])
+
+  if (!plan) {
+    return (
+      <Reveal delay={0.12}>
+        <div className="mt-6">
+          <Card glow className="relative overflow-hidden border-leaf-400/40 bg-leaf-400/5">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold">🌱 Want to Start Farming?</h2>
+                <p className="mt-1 max-w-xl text-sm text-muted">
+                  Answer 7 simple questions and get a complete farm plan — best-fit crops, costs, expected returns,
+                  live weather and a day-by-day calendar. Takes about 2 minutes.
+                </p>
+              </div>
+              <Link href="/start" className="btn-primary shrink-0">Create My Farm Plan →</Link>
+            </div>
+          </Card>
+        </div>
+      </Reveal>
+    )
+  }
+
+  const crop = plan.chosenCrop ? cropVisual(plan.chosenCrop) : null
+  const st = plan.chosenCrop ? stageAt(plan, plan.chosenCrop) : null
+  const tasks = tasksForToday(plan).slice(0, 4)
+  const doneCount = tasks.filter((t) => done[t.id]).length
+
+  const toggle = (id: string) => {
+    const next = { ...done, [id]: !done[id] }
+    setDone(next)
+    const all = loadDoneTasks()
+    all[dayKey] = next
+    saveDoneTasks(all)
+  }
+
+  return (
+    <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <Reveal>
+        <Card hover className="h-full border-leaf-400/30">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-wider text-leaf-600 dark:text-leaf-400">🌱 Your Farm Plan</div>
+              <p className="mt-1 text-lg font-bold">
+                {crop ? `${crop.icon} ${crop.label}` : 'Plan ready — pick your crop'} · {Math.round(totalAcres(plan) * 100) / 100} acres
+              </p>
+              <p className="mt-0.5 text-xs text-muted">
+                {plan.location.village}, {plan.location.district}
+                {st ? ` · ${st.stage.icon} ${st.stage.name} (day ${st.day} of ~${st.total})` : ''}
+              </p>
+            </div>
+            <Progress value={st ? (st.day / st.total) * 100 : 0} tone="leaf" className="w-20 self-center" />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href="/start" className="btn-primary text-xs">Open farm plan →</Link>
+            <Link href="/farm" className="btn-ghost text-xs">See in My Farm</Link>
+          </div>
+        </Card>
+      </Reveal>
+      <Reveal delay={0.08}>
+        <Card className="h-full">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="text-xs font-bold uppercase tracking-wider text-muted">✅ Today’s Farm Tasks</div>
+            <Chip tone={doneCount === tasks.length && tasks.length > 0 ? 'live' : 'info'}>{doneCount}/{tasks.length}</Chip>
+          </div>
+          <ul className="space-y-1.5">
+            {tasks.map((t) => (
+              <li key={t.id}>
+                <button type="button" onClick={() => toggle(t.id)} aria-pressed={!!done[t.id]}
+                  className={cn('flex w-full items-center gap-2.5 rounded-xl border border-transparent px-2.5 py-2 text-left text-xs transition hover:border-line/60 hover:bg-surface-2/50 dark:hover:bg-black/10',
+                    done[t.id] && 'text-muted line-through')}>
+                  <span className={cn('grid h-4 w-4 shrink-0 place-items-center rounded border text-[9px]',
+                    done[t.id] ? 'border-leaf-500 bg-leaf-500 text-white' : 'border-line')} aria-hidden>{done[t.id] ? '✓' : ''}</span>
+                  <span aria-hidden>{t.icon}</span>
+                  <span className="flex-1 leading-snug">{t.text}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <Link href="/start#tasks" className="btn-quiet mt-2 text-[11px]">All tasks in farm plan →</Link>
+        </Card>
+      </Reveal>
+    </div>
   )
 }

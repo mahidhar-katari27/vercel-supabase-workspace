@@ -12,6 +12,7 @@ export type NavItem = {
 export const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Home', icon: '🏠', group: 'main' },
   { href: '/farm', label: 'My Farm', short: 'Farm', icon: '🌾', group: 'main' },
+  { href: '/start', label: 'Start Farming', short: 'Start', icon: '🌱', group: 'main' },
   { href: '/crop-doctor', label: 'AI Doctor', short: 'AI', icon: '🤖', group: 'main' },
   { href: '/market', label: 'Market', icon: '📈', group: 'main' },
   { href: '/marketplace', label: 'Marketplace', icon: '🛒', group: 'more' },
@@ -33,6 +34,7 @@ export const allSections: Array<{ title: string; items: NavItem[] }> = [
   {
     title: 'Farm management',
     items: [
+      { href: '/start', label: 'Start Farming', icon: '🌱', group: 'more' },
       { href: '/farm', label: 'My Farm', icon: '🌾', group: 'more' },
       { href: '/planner', label: 'Crop Planner', icon: '🗓️', group: 'more' },
       { href: '/weather', label: 'Weather & Alerts', icon: '🌦️', group: 'more' },

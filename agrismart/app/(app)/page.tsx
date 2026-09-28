@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Counter, DemoTag, Reveal, SectionHeading, StatCard, spring } from '@/components/ui'
 import MapCanvas from '@/components/maps/MapCanvas'
@@ -15,6 +16,7 @@ import {
 import { inr } from '@/lib/utils'
 
 const FEATURES = [
+  { href: '/start', icon: '🌱', title: 'Start Farming', body: 'Guided wizard for new farmers — the right crop for your land, water and budget, with full economics and a day-by-day plan.' },
   { href: '/farm', icon: '🌾', title: 'My Farm', body: 'Land profiles, soil, irrigation, crop stage and a live field map.' },
   { href: '/crop-doctor', icon: '🤖', title: 'AI Crop Doctor', body: 'Upload a leaf photo for an AI-assisted assessment with next steps.' },
   { href: '/planner', icon: '🗓️', title: 'Smart Crop Planner', body: 'Compare crops on cost, water, duration and indicative margin.' },
@@ -150,6 +152,53 @@ export default function LandingPage() {
               </Link>
             </Reveal>
           ))}
+        </div>
+      </section>
+
+      {/* ------------------------------------------------- start farming */}
+      <section className="section mt-16 sm:mt-24">
+        <div className="card relative overflow-hidden border-leaf-400/30 bg-gradient-to-br from-leaf-400/5 to-transparent p-6 sm:p-10">
+          <div className="relative grid items-center gap-12 lg:grid-cols-2">
+            <div>
+              <div className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-leaf-600 dark:text-leaf-400">New · Zero experience needed</div>
+              <h2 className="text-2xl font-bold sm:text-3xl">Don&rsquo;t know what to grow? <span className="text-leaf-600 dark:text-leaf-400">Start here.</span></h2>
+              <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted sm:text-base">
+                The guided Start Farming wizard turns 7 simple answers — location, land, soil, water, budget, goals and
+                start date — into a complete farm plan: suitability-ranked crops with transparent reasons, per-acre
+                economics, live weather, a stage-by-stage calendar and daily tasks that sync to your dashboard and My Farm.
+              </p>
+              <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs font-semibold">
+                {['📍 Location', '🌾 Land', '🧪 Soil', '💧 Water', '💰 Budget', '🎯 Goals', '🗓️ Start'].map((f, i) => (
+                  <span key={f} className="flex items-center gap-2">
+                    <span className="rounded-full border border-line/70 bg-surface-2/60 px-3 py-1.5 dark:bg-black/15">{f}</span>
+                    {i < 6 && <span className="text-faint" aria-hidden>→</span>}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href="/start" className="btn-primary">🌱 Create My Farm Plan</Link>
+                <Link href="/start" className="btn-ghost">🔎 Explore crops first</Link>
+              </div>
+              <p className="mt-3 text-[11px] text-faint">Live weather via Open-Meteo · mandi prices show market + date · every money figure is a clearly-labelled estimate.</p>
+            </div>
+            <div className="relative self-start">
+              <div className="relative overflow-hidden rounded-3xl border border-line/60 shadow-lift">
+                <Image src="/start/hero.jpg" alt="A farmer inspecting a young field at sunrise" width={720} height={480} className="h-auto w-full object-cover" />
+              </div>
+              <motion.div animate={{ y: [0, -8, 0] }} transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut' }}
+                className="absolute -bottom-5 -left-3 w-52 rounded-2xl border border-line/60 bg-surface/95 p-3.5 shadow-lift backdrop-blur dark:bg-surface-2/95">
+                <p className="text-xs font-bold">🌾 Paddy · 88% fit</p>
+                <p className="mt-0.5 text-[11px] text-muted">Black soil + canal water + June start</p>
+                <p className="mt-1 text-[10px] text-faint">Indicative suitability · not a guarantee</p>
+              </motion.div>
+              <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
+                className="absolute -top-4 right-2 w-44 rounded-2xl border border-line/60 bg-surface/95 p-3 text-center shadow-lift backdrop-blur dark:bg-surface-2/95">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-faint">Est. profit / acre</p>
+                <p className="text-lg font-bold text-leaf-600 dark:text-leaf-400">₹16,750</p>
+                <p className="text-[9px] text-faint">Sample estimate only</p>
+              </motion.div>
+            </div>
+          </div>
         </div>
       </section>
 

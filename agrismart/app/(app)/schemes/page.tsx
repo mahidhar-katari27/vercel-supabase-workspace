@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { Card, Chip, DemoTag, Modal, PageHeader, Reveal, spring } from '@/components/ui'
 import NearbyServices from '@/components/maps/NearbyServices'
 import { farmer, schemeApplications, schemes, schemeStages, type Scheme } from '@/lib/data'
+import { loadPlan, onPlanChange, totalAcres } from '@/lib/farmPlan'
 import { cn } from '@/lib/utils'
 
 const states = ['Andhra Pradesh', 'Telangana', 'Karnataka', 'Maharashtra', 'Tamil Nadu', 'All states']
@@ -22,6 +23,23 @@ export default function SchemesPage() {
   const [detail, setDetail] = useState<Scheme | null>(null)
   const [apps, setApps] = useState(schemeApplications)
   const [toast, setToast] = useState<string | null>(null)
+  const [planMeta, setPlanMeta] = useState<{ village: string; acres: number } | null>(null)
+
+  // Prefill eligibility from the saved Start Farming plan (still fully editable).
+  useEffect(() => {
+    const apply = () => {
+      const p = loadPlan()
+      if (!p) { setPlanMeta(null); return }
+      const a = Math.round(totalAcres(p) * 100) / 100
+      setPlanMeta({ village: p.location.village || p.location.district, acres: a })
+      setSector('Crop')
+      if (states.includes(p.location.state)) setState(p.location.state)
+      if (a > 0) setAcres(String(a))
+    }
+    apply()
+    return onPlanChange(apply)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const area = parseFloat(acres) || 0
   const stageIndex = (s: string) => schemeStages.indexOf(s)
@@ -68,6 +86,18 @@ export default function SchemesPage() {
           government body, and no form is submitted anywhere.
         </div>
       </PageHeader>
+
+      {planMeta && (
+        <Reveal>
+          <Card className="mb-5 flex flex-wrap items-center gap-3 border-leaf-400/35 bg-leaf-400/5">
+            <Chip tone="live" icon="🌱">Prefilled from your Start Farming plan</Chip>
+            <p className="min-w-[200px] flex-1 text-xs text-muted">
+              {planMeta.village} · {planMeta.acres} acres · Crop sector — adjust anything below if your situation differs.
+            </p>
+            <Link href="/start" className="btn-quiet text-xs">Open farm plan →</Link>
+          </Card>
+        </Reveal>
+      )}
 
       {/* --------------------------------------------------- eligibility form */}
       <Reveal>

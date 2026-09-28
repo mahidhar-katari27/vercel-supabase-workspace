@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { loadPlan, onPlanChange, planLands } from '@/lib/farmPlan'
 import { Card, Chip, DemoTag, Modal, PageHeader, Progress, Reveal, spring } from '@/components/ui'
 import MapCanvas from '@/components/maps/MapCanvas'
 import LocationPickerModal from '@/components/maps/LocationPickerModal'
@@ -38,8 +39,17 @@ export default function FarmPage() {
   const [dashboard, setDashboard] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement | null>(null)
 
-  const totalAcres = list.reduce((a, l) => a + l.acres, 0)
-  const active = list.find((l) => l.id === dashboard) ?? list[0]!
+  // Lands generated from the saved Start Farming plan stay in sync automatically.
+  const [planList, setPlanList] = useState<Land[]>([])
+  useEffect(() => {
+    const sync = () => { const p = loadPlan(); setPlanList(p?.chosenCrop ? planLands(p) : []) }
+    sync()
+    return onPlanChange(sync)
+  }, [])
+  const all = useMemo(() => [...planList, ...list], [planList, list])
+
+  const totalAcres = all.reduce((a, l) => a + l.acres, 0)
+  const active = all.find((l) => l.id === dashboard) ?? all[0]!
   const set = (k: keyof typeof emptyForm, v: string) => setForm((f) => ({ ...f, [k]: v }))
 
   useEffect(() => {
@@ -109,7 +119,7 @@ export default function FarmPage() {
     setForm(emptyForm); setFormPhoto(null); setFormLoc(null); setOpen(false)
   }
 
-  const farmMarkers: MapMarker[] = list.map((l) => ({
+  const farmMarkers: MapMarker[] = all.map((l) => ({
     id: l.id,
     lat: pins[l.id]?.lat ?? l.coords.lat,
     lng: pins[l.id]?.lng ?? l.coords.lng,
@@ -125,8 +135,8 @@ export default function FarmPage() {
       <PageHeader
         icon="🌾"
         title="My Farm"
-        sub={`${list.length} lands · ${totalAcres.toFixed(1)} acres · ${farmer.season} — your digital farm portfolio`}
-        tag={<DemoTag />}
+        sub={`${all.length} lands · ${totalAcres.toFixed(1)} acres · ${farmer.season} — your digital farm portfolio`}
+        tag={<span className="flex flex-wrap items-center gap-2"><DemoTag />{planList.length > 0 && <Chip tone="live" icon="🌱">{planList.length} land{planList.length > 1 ? 's' : ''} from your Farm Plan</Chip>}</span>}
       >
         <div className="flex flex-wrap gap-2.5">
           <button onClick={() => setOpen(true)} className="btn btn-primary">+ Add New Land</button>
@@ -145,15 +155,20 @@ export default function FarmPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((l, i) => (
+        {all.map((l, i) => (
           <LandCard
             key={l.id}
             land={l}
             index={i}
             photo={photos[l.id]}
             pinned={!!pins[l.id]}
+            fromPlan={l.id.startsWith('plan-')}
             onView={() => setDashboard(l.id)}
-            onMap={() => { window.location.href = `/map?focus=land-${l.id}` }}
+            onMap={() => {
+              window.location.href = l.id.startsWith('plan-')
+                ? `/map?lat=${l.coords.lat}&lng=${l.coords.lng}&label=${encodeURIComponent(`${l.name} — ${l.crop}`)}`
+                : `/map?focus=land-${l.id}`
+            }}
           />
         ))}
 
@@ -405,7 +420,7 @@ export default function FarmPage() {
 /* ================================================================ land card */
 
 function LandCard({
-  land, index, photo, pinned, onView, onMap,
+  land, index, photo, pinned, onView, onMap, fromPlan = false,
 }: {
   land: Land
   index: number
@@ -413,6 +428,7 @@ function LandCard({
   pinned: boolean
   onView: () => void
   onMap: () => void
+  fromPlan?: boolean
 }) {
   const crop = cropOf(land.cropKey)
   const health = healthIndicator(land.health)
@@ -490,11 +506,21 @@ function LandCard({
             </div>
           </div>
 
+          {fromPlan && (
+            <div className="rounded-2xl border border-leaf-400/35 bg-leaf-400/10 px-3 py-2 text-[10px] font-semibold text-leaf-700 dark:text-leaf-300">
+              🌱 Created from your Start Farming plan — figures are estimates
+            </div>
+          )}
+
           <div className="mt-auto flex gap-2 pt-1">
             <button onClick={onView} className="btn btn-primary btn-sm flex-1">View Land</button>
-            <button onClick={onMap} className="btn btn-ghost btn-sm flex-1" aria-label={`View ${land.name} on map`}>
-              📍 Map {pinned && <span className="text-leaf-600">•</span>}
-            </button>
+            {fromPlan ? (
+              <Link href="/start" className="btn btn-gold btn-sm flex-1">🌱 Farm Plan</Link>
+            ) : (
+              <button onClick={onMap} className="btn btn-ghost btn-sm flex-1" aria-label={`View ${land.name} on map`}>
+                📍 Map {pinned && <span className="text-leaf-600">•</span>}
+              </button>
+            )}
           </div>
         </div>
       </motion.article>

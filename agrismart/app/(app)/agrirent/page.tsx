@@ -1,10 +1,13 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { Card, Chip, DemoTag, PageHeader, Reveal, spring, Stepper } from '@/components/ui'
 import { driverPool, farmer, lands, machines, type Machine } from '@/lib/data'
+import type { FarmPlan } from '@/lib/farmPlan'
+import { loadPlan, onPlanChange } from '@/lib/farmPlan'
+import { cropInfo, cropVisual } from '@/lib/cropDb'
 import { cn, inr } from '@/lib/utils'
 import { placeForRef } from '@/lib/places'
 import { directionsUrl, formatKm, haversineKm } from '@/lib/geo'
@@ -87,6 +90,9 @@ export default function AgriRentPage() {
           values — an actual quote depends on the vendor, the season and how far the machine has to travel.
         </div>
       </PageHeader>
+
+      {/* ------------------------------------------- plan machinery needs */}
+      <PlanNeedsBanner onPick={(m) => { setMachineId(m.id); setStep(0); window.scrollTo({ top: 260, behavior: 'smooth' }) }} />
 
       {!placed && (
         <Reveal>
@@ -551,4 +557,50 @@ function fmtDate(iso: string) {
   if (!iso) return '—'
   const d = new Date(iso)
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+/* ------------------------------------------- plan-linked machinery needs */
+
+function PlanNeedsBanner({ onPick }: { onPick: (m: Machine) => void }) {
+  const [plan, setPlan] = useState<FarmPlan | null>(null)
+  useEffect(() => {
+    setPlan(loadPlan())
+    return onPlanChange(() => setPlan(loadPlan()))
+  }, [])
+  if (!plan?.chosenCrop) return null
+  const crop = cropInfo(plan.chosenCrop)
+  const vis = cropVisual(plan.chosenCrop)
+  const match = (need: string): Machine | undefined => {
+    const words = need.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3)
+    return machines.find((m) => {
+      const n = m.name.toLowerCase()
+      return words.some((w) => n.includes(w)) && m.available
+    }) ?? machines.find((m) => words.some((w) => m.name.toLowerCase().includes(w)))
+  }
+  return (
+    <Reveal>
+      <Card className="mb-5 border-leaf-400/35 bg-leaf-400/5">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-leaf-400/10 text-xl" aria-hidden>{vis.icon}</span>
+          <div className="min-w-[200px] flex-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-leaf-600 dark:text-leaf-400">🌱 From your Start Farming plan</p>
+            <p className="text-sm font-bold">Machinery your {vis.label} crop needs near {plan.location.district || 'you'}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {crop.machinery.map((need) => {
+              const m = match(need)
+              return m ? (
+                <button key={need} type="button" className="btn-ghost text-xs" onClick={() => onPick(m)}>
+                  {m.icon} {need} — select {m.name.split('(')[0]!.trim()}
+                </button>
+              ) : (
+                <Chip key={need} icon="🚜">{need} — not in sample catalogue</Chip>
+              )
+            })}
+          </div>
+          <Link href="/start" className="btn-quiet text-xs">Farm plan →</Link>
+        </div>
+      </Card>
+    </Reveal>
+  )
 }

@@ -246,6 +246,36 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSy...   # empty = labelled demo map
   badged **DEMO MAP** with sample locations; distances become labelled
   estimates and "Open in Google Maps" links still work keyless.
 
+## Start Farming (🌱 /start)
+
+A guided, zero-knowledge onboarding flow inside AgriSmart 2.0:
+
+1. **Wizard (7 steps)** — location (Google Maps picker / GPS), land size in
+   acres + cents with multi-plot support, soil (including an honest
+   "I don't know" path with a soil-test nudge), water source + reliability,
+   budget (total or per-acre), goals, and start date.
+2. **Animated analysis** → **suitability-ranked crop cards** with transparent
+   "Why this crop" reasons, "Things to consider", risk lists and a comparison
+   table (no universal "best crop").
+3. **Complete Farm Plan** — 1-acre economics with clickable cost breakdown and
+   donut, total-land recalculation, What-If scenarios (conservative / expected
+   / optimistic + custom sliders), live crop weather (Open-Meteo API, labelled
+   sample fallback), stage calendar generated from the start date, machinery
+   needs → AgriRent, relevant schemes → Schemes, and daily tasks that sync to
+   the dashboard.
+
+The plan is the single source of truth: it merges into **My Farm lands**,
+prefills **Schemes eligibility**, links **Crop Doctor** diagnoses to a land,
+adds market context on **Market**, and answers questions in the **AI
+assistant** (English / Telugu / Tenglish) with the 1-acre → total-land maths.
+Every financial figure carries the estimate disclaimer; live data sources are
+labelled (Open-Meteo, Google Maps, mandi source + date).
+
+```bash
+npm run audit:start            # end-to-end playwright audit (61 checks)
+node agrismart/scripts/start-audit.js https://agrismart-two-neon.vercel.app
+```
+
 ## Files
 
 | File | Purpose |

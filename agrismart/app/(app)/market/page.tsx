@@ -1,10 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, Chip, DemoTag, Modal, PageHeader, Reveal, Tabs } from '@/components/ui'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { Card, Chip, Delta, DemoTag, Modal, PageHeader, Reveal, Tabs } from '@/components/ui'
 import NearbyServices from '@/components/maps/NearbyServices'
 import { LineChart, Sparkline } from '@/components/charts'
 import { marketRows, priceHistory } from '@/lib/data'
+import type { FarmPlan } from '@/lib/farmPlan'
+import { economics, loadPlan, marketPriceRef, onPlanChange, totalAcres } from '@/lib/farmPlan'
+import { cropVisual } from '@/lib/cropDb'
 import { cn, inr } from '@/lib/utils'
 
 const MARKETS = ['All markets', ...Array.from(new Set(marketRows.map((r) => r.market)))]
@@ -39,6 +43,9 @@ export default function MarketPage() {
           market yard before deciding when and where to sell.
         </div>
       </PageHeader>
+
+      {/* --------------------------------------------- your crop (farm plan) */}
+      <PlanMarketCard />
 
       {/* -------------------------------------------------------- controls */}
       <Card className="mb-5">
@@ -275,4 +282,49 @@ function seriesFor(row: { crop: string; price: number; prev: number }): { color:
   let h = 0
   for (let i = 0; i < row.crop.length; i++) h = (h * 31 + row.crop.charCodeAt(i)) % 360
   return { color: `hsl(${h} 55% 45%)`, data }
+}
+
+/* ------------------------------------------- plan-linked market context */
+
+function PlanMarketCard() {
+  const [plan, setPlan] = useState<FarmPlan | null>(null)
+  useEffect(() => {
+    setPlan(loadPlan())
+    return onPlanChange(() => setPlan(loadPlan()))
+  }, [])
+  if (!plan?.chosenCrop) return null
+  const ref = marketPriceRef(plan.chosenCrop)
+  const eco = economics(plan, plan.chosenCrop)
+  const vis = cropVisual(plan.chosenCrop)
+  const acres = Math.round(totalAcres(plan) * 100) / 100
+  const prev = marketRows.find((r) => r.crop === ref?.crop)?.prev
+  const chg = ref && prev ? ((ref.price - prev) / prev) * 100 : 0
+  return (
+    <Reveal>
+      <Card className="mb-5 border-leaf-400/35 bg-leaf-400/5">
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-leaf-400/10 text-xl" aria-hidden>{vis.icon}</span>
+          <div className="min-w-[200px] flex-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-leaf-600 dark:text-leaf-400">🌱 Your plan crop</p>
+            <p className="text-base font-bold">{vis.label} · {acres} acres in your farm plan</p>
+            {ref ? (
+              <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-muted">
+                {ref.crop}: {inr(ref.price)}/quintal at {ref.market} · {ref.date}
+                {ref.msp ? ` · MSP ${inr(ref.msp)}` : ''}
+                {prev ? <Delta value={chg} /> : null}
+              </p>
+            ) : (
+              <p className="mt-0.5 text-xs text-muted">No mandi row for this crop in the sample dataset yet.</p>
+            )}
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-faint">Est. revenue at this price</p>
+            <p className="text-lg font-bold text-leaf-600 dark:text-leaf-400">{inr(eco.total.revenue)}</p>
+            <p className="text-[9px] text-faint">Estimate — not guaranteed</p>
+          </div>
+          <Link href="/start" className="btn-primary text-xs">Open farm plan →</Link>
+        </div>
+      </Card>
+    </Reveal>
+  )
 }

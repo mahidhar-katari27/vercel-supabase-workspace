@@ -3,10 +3,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Card, Chip, DemoTag, PageHeader, Progress, Reveal, spring } from '@/components/ui'
 import { Gauge } from '@/components/charts'
-import { analysisSteps, type Diagnosis } from '@/lib/data'
+import { analysisSteps, lands, type Diagnosis } from '@/lib/data'
+import { loadPlan, onPlanChange, planLands } from '@/lib/farmPlan'
 import { analyseCrop, doctorDisclaimer, doctorSuggestions } from '@/lib/ai'
 import { sampleLeaves } from '@/lib/samples'
 import { cn } from '@/lib/utils'
@@ -20,6 +21,42 @@ export default function CropDoctorPage() {
   const [result, setResult] = useState<Diagnosis | null>(null)
   const [dragging, setDragging] = useState(false)
   const [followUp, setFollowUp] = useState<string | null>(null)
+
+  // Land context — links each diagnosis to a land (from the Start Farming plan
+  // or your saved lands) and keeps a small per-land history locally.
+  const [landOpts, setLandOpts] = useState<Array<{ id: string; label: string; plan: boolean }>>([])
+  const [landId, setLandId] = useState('')
+  const [dxHistory, setDxHistory] = useState<Array<{ id: string; landId: string; date: string; issue: string; risk: string; confidence: number }>>([])
+  const loggedRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    const sync = () => {
+      const p = loadPlan()
+      const pl = p?.chosenCrop ? planLands(p) : []
+      const opts = [
+        ...pl.map((l) => ({ id: l.id, label: `${l.name} · ${l.crop} · plan`, plan: true })),
+        ...lands.map((l) => ({ id: l.id, label: `${l.name} · ${l.crop}`, plan: false })),
+      ]
+      setLandOpts(opts)
+      setLandId((cur) => cur || window.localStorage.getItem('agrismart-doctor-land') || opts[0]?.id || '')
+      try { setDxHistory(JSON.parse(window.localStorage.getItem('agrismart-doctor-history') ?? '[]')) } catch { /* ignore */ }
+    }
+    sync()
+    return onPlanChange(sync)
+  }, [])
+
+  useEffect(() => {
+    if (stage !== 'done' || !result || !landId) return
+    const key = `${landId}:${result.issue}:${img?.name ?? ''}`
+    if (loggedRef.current === key) return
+    loggedRef.current = key
+    const entry = { id: `dx-${Date.now()}`, landId, date: new Date().toISOString(), issue: result.issue, risk: result.risk, confidence: result.confidence }
+    setDxHistory((h) => {
+      const next = [entry, ...h].slice(0, 20)
+      try { window.localStorage.setItem('agrismart-doctor-history', JSON.stringify(next)) } catch { /* ignore */ }
+      return next
+    })
+  }, [stage, result, landId, img])
   const fileRef = useRef<HTMLInputElement>(null)
   const timers = useRef<number[]>([])
 
@@ -74,6 +111,36 @@ export default function CropDoctorPage() {
           {doctorDisclaimer}
         </div>
       </PageHeader>
+
+      <Reveal>
+        <Card className="mb-5">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted">🌍 Diagnosing land</span>
+            <select
+              value={landId}
+              onChange={(e) => { setLandId(e.target.value); try { window.localStorage.setItem('agrismart-doctor-land', e.target.value) } catch { /* ignore */ } }}
+              className="rounded-xl border border-line/70 bg-surface-2/60 px-3 py-2 text-sm font-semibold outline-none focus:border-leaf-400/70 dark:bg-black/20"
+              aria-label="Select the land this diagnosis is for"
+            >
+              {landOpts.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+            </select>
+            {landOpts.find((o) => o.id === landId)?.plan && <Chip tone="live" icon="🌱">Linked to your Start Farming plan</Chip>}
+            <Link href="/start" className="btn-quiet ml-auto text-xs">
+              {landOpts.some((o) => o.plan) ? 'Open farm plan →' : '🌱 Create a farm plan →'}
+            </Link>
+          </div>
+          {dxHistory.filter((h) => h.landId === landId).length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line/50 pt-3">
+              <span className="text-[11px] font-semibold text-faint">Recent checks for this land:</span>
+              {dxHistory.filter((h) => h.landId === landId).slice(0, 3).map((h) => (
+                <Chip key={h.id} tone={h.risk === 'HIGH' ? 'danger' : h.risk === 'MEDIUM' ? 'demo' : 'ok'}>
+                  {h.issue} · {h.risk} · {new Date(h.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                </Chip>
+              ))}
+            </div>
+          )}
+        </Card>
+      </Reveal>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_1.05fr]">
         {/* ------------------------------------------------------ upload side */}
