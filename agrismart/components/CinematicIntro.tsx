@@ -36,6 +36,8 @@ const PINS = [
 
 export default function CinematicIntro({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<Phase>('dark')
+  const [small, setSmall] = useState(false)
+  useEffect(() => { setSmall(window.innerWidth < 640) }, [])
   const timers = useRef<number[]>([])
   const doneRef = useRef(false)
 
@@ -105,9 +107,9 @@ export default function CinematicIntro({ onDone }: { onDone: () => void }) {
             <motion.div
               className="absolute inset-0 mix-blend-screen"
               style={{ background: 'linear-gradient(105deg, transparent 30%, rgba(255,214,150,0.28) 46%, rgba(255,236,200,0.16) 52%, transparent 68%)' }}
-              initial={{ x: '-60%' }}
-              animate={{ x: phase === 'dark' ? '-60%' : '60%' }}
-              transition={{ duration: 4.6, ease: 'easeInOut', delay: 0.8 }}
+              initial={{ x: small ? '0%' : '-60%' }}
+              animate={{ x: small ? '0%' : phase === 'dark' ? '-60%' : '60%' }}
+              transition={{ duration: small ? 0 : 4.6, ease: 'easeInOut', delay: 0.8 }}
             />
 
             {/* cinematic grade: letterbox breathing + bottom weight */}
@@ -115,7 +117,7 @@ export default function CinematicIntro({ onDone }: { onDone: () => void }) {
           </div>
 
           {/* ------------------------------------ dust motes (0.0–0.8+) */}
-          {motes.map((m, i) => (
+          {motes.slice(0, small ? 6 : motes.length).map((m, i) => (
             <motion.span
               key={i}
               className="absolute rounded-full bg-[#f4e9d8]"

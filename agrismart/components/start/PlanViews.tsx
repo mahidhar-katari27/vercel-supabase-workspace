@@ -18,7 +18,7 @@ import type { LiveWeather } from '@/lib/weather'
 import { fetchLiveWeather, weatherAdvice } from '@/lib/weather'
 import { farmer } from '@/lib/data'
 import { cn } from '@/lib/utils'
-import { Card, Chip, Progress } from '@/components/ui'
+import { Card, Chip, Counter, Progress } from '@/components/ui'
 import { Donut, Gauge } from '@/components/charts'
 
 const DONUT = ['#354A29', '#818B54', '#C0562A', '#B98A2F', '#5F7D95', '#A3B18A', '#646B64', '#8d6a45']
@@ -75,9 +75,19 @@ export function CropCard({
           <Fact icon="🌡️" k="Temp" v={`${crop.tempC[0]}–${crop.tempC[1]}°C`} />
           <Fact icon="💧" k="Water" v={crop.water} />
           <Fact icon="⏳" k="Duration" v={`${crop.durationDays[0]}–${crop.durationDays[1]} days`} />
-          <Fact icon="💰" k="Investment" v={`${inr(eco?.cost ?? cropTotal(crop))}/acre`} />
-          <Fact icon="📈" k="Est. revenue" v={`${inr(eco?.revenue ?? 0)}/acre`} />
-          <Fact icon="🏆" k="Est. profit" v={`${inr(eco?.profit ?? 0)}/acre`} tone="ok" />
+          {isTop && eco ? (
+            <>
+              <CountFact icon="💰" k="Investment" to={eco.cost} suffix="/acre" />
+              <CountFact icon="📈" k="Est. revenue" to={eco.revenue} suffix="/acre" />
+              <CountFact icon="🏆" k="Est. profit" to={eco.profit} suffix="/acre" tone="ok" />
+            </>
+          ) : (
+            <>
+              <Fact icon="💰" k="Investment" v={`${inr(eco?.cost ?? cropTotal(crop))}/acre`} />
+              <Fact icon="📈" k="Est. revenue" v={`${inr(eco?.revenue ?? 0)}/acre`} />
+              <Fact icon="🏆" k="Est. profit" v={`${inr(eco?.profit ?? 0)}/acre`} tone="ok" />
+            </>
+          )}
           <Fact icon="⚠️" k="Risk level" v={risk.label} tone={risk.tone === 'ok' ? 'ok' : risk.tone === 'danger' ? 'bad' : undefined} />
         </div>
 
@@ -138,6 +148,17 @@ export function CropCard({
 }
 
 const cropTotal = (c: CropInfo) => Object.values(c.eco).reduce((a, b) => a + b, 0)
+
+function CountFact({ icon, k, to, suffix = '', tone }: { icon: string; k: string; to: number; suffix?: string; tone?: 'ok' }) {
+  return (
+    <div className="flex items-baseline justify-between gap-2">
+      <span className="text-faint"><span aria-hidden>{icon}</span> {k}</span>
+      <span className={cn('font-bold tabular-nums', tone === 'ok' && 'text-leaf-700 dark:text-leaf-300')}>
+        <Counter to={to} compact suffix={suffix} />
+      </span>
+    </div>
+  )
+}
 
 function Fact({ icon, k, v, tone }: { icon: string; k: string; v: string; tone?: 'ok' | 'bad' }) {
   return (

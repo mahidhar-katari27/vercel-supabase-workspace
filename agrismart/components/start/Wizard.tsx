@@ -65,6 +65,8 @@ export function emptyPlan(): FarmPlan {
   }
 }
 
+import FarmModel from './FarmModel'
+
 export default function Wizard({
   onComplete, onCancel, initial,
 }: {
@@ -124,6 +126,7 @@ export default function Wizard({
       </div>
 
       <Card className="relative overflow-hidden">
+        <FarmModel p={p} acres={acres} startDate={startDate} />
         <AnimatePresence mode="wait">
           <motion.div
             key={step}

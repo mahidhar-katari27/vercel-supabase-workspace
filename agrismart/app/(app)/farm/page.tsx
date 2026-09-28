@@ -216,6 +216,12 @@ export default function FarmPage() {
                           stroke={on ? 'hsl(var(--leaf-500))' : 'hsl(var(--ink) / 0.35)'} strokeWidth={on ? 3 : 1.4}
                           initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.1, delay: 0.2 + i * 0.25, ease: 'easeInOut' }}
                         />
+                        <motion.rect
+                          x={px} y={20} width={w} height={170} rx={18} fill="hsl(var(--leaf-400))"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: [0, 0.26, 0] }}
+                          transition={{ duration: 1.5, delay: 1.1 + i * 0.45, ease: 'easeInOut' }}
+                        />
                         <text x={px + 12} y={212} className="fill-current text-[13px] font-bold" fill="currentColor">
                           {l.crop} — {l.acres} ac
                         </text>

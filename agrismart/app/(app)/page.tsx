@@ -472,7 +472,7 @@ function HeroCinema() {
         <motion.div
           className="absolute inset-0 mix-blend-screen"
           style={{ background: 'linear-gradient(105deg, transparent 34%, rgba(255,214,150,0.16) 48%, transparent 64%)' }}
-          animate={{ x: ['-40%', '40%'] }}
+          animate={typeof window !== 'undefined' && window.innerWidth < 640 ? { x: '0%' } : { x: ['-40%', '40%'] }}
           transition={{ duration: 14, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
         />
       </motion.div>
