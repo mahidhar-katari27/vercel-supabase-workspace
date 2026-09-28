@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Card, Chip, Delta, DemoTag, Modal, PageHeader, Reveal, Tabs } from '@/components/ui'
 import NearbyServices from '@/components/maps/NearbyServices'
@@ -159,11 +160,13 @@ export default function MarketPage() {
               })}
             </div>
           </div>
-          <LineChart
+          <motion.div key={`${visible.join(',')}|${market}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
+            <LineChart
             series={priceHistory.series.filter((s) => visible.includes(s.name))}
             labels={priceHistory.labels} height={280}
             formatValue={(v) => inr(Math.round(v))}
           />
+          </motion.div>
           {visible.length === 0 && <p className="py-8 text-center text-sm text-muted">Select a crop above to plot its trend.</p>}
         </Card>
       </Reveal>
