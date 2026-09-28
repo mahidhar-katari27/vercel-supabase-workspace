@@ -71,7 +71,7 @@ export default function DashboardPage() {
             <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-gradient-to-br from-earth-300/20 to-transparent blur-2xl" aria-hidden />
             <div className="relative flex items-start justify-between gap-2">
               <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-earth-300/20 to-transparent text-lg text-earth-600 dark:text-earth-300" aria-hidden>📈</span>
-              <Sparkline data={priceHistory.series[0]!.data.slice(-8)} color="#22965c" width={70} height={26} />
+              <Sparkline data={priceHistory.series[0]!.data.slice(-8)} color="#354A29" width={70} height={26} />
             </div>
             <div className="mt-4 text-xs font-bold uppercase tracking-wider text-muted">Market · Paddy</div>
             <div className="stat-value mt-1">₹2,350<span className="text-base font-bold text-faint">/Qtl</span></div>
@@ -224,8 +224,8 @@ export default function DashboardPage() {
             <BarChart
               labels={monthlyFinance.labels}
               stacked={[
-                { name: 'Investment', color: '#c0553f', data: monthlyFinance.investment },
-                { name: 'Revenue', color: '#22965c', data: monthlyFinance.revenue },
+                { name: 'Investment', color: '#C0562A', data: monthlyFinance.investment },
+                { name: 'Revenue', color: '#354A29', data: monthlyFinance.revenue },
               ]}
               height={210}
               formatValue={(v) => inr(v, { compact: true })}
@@ -416,10 +416,10 @@ function FieldArt({ progress }: { progress: number }) {
         const x = 10 + i * 20
         return (
           <g key={i} style={{ animation: `sway ${4 + (i % 3)}s ease-in-out ${i * 0.15}s infinite`, transformOrigin: `${x}px 64px` }}>
-            <line x1={x} y1={64} x2={x} y2={64 - h} stroke="#22965c" strokeWidth="2" strokeLinecap="round" />
-            <ellipse cx={x - 4} cy={64 - h * 0.6} rx="4" ry="2" fill="#4bb37c" transform={`rotate(-30 ${x - 4} ${64 - h * 0.6})`} />
-            <ellipse cx={x + 4} cy={64 - h * 0.8} rx="4" ry="2" fill="#7fcfa4" transform={`rotate(30 ${x + 4} ${64 - h * 0.8})`} />
-            {progress > 70 && <circle cx={x} cy={64 - h} r="2.6" fill="#d4a537" />}
+            <line x1={x} y1={64} x2={x} y2={64 - h} stroke="#354A29" strokeWidth="2" strokeLinecap="round" />
+            <ellipse cx={x - 4} cy={64 - h * 0.6} rx="4" ry="2" fill="#818B54" transform={`rotate(-30 ${x - 4} ${64 - h * 0.6})`} />
+            <ellipse cx={x + 4} cy={64 - h * 0.8} rx="4" ry="2" fill="#A3B18A" transform={`rotate(30 ${x + 4} ${64 - h * 0.8})`} />
+            {progress > 70 && <circle cx={x} cy={64 - h} r="2.6" fill="#B98A2F" />}
           </g>
         )
       })}

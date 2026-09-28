@@ -67,8 +67,8 @@ export default function DairyPage() {
             <BarChart
               labels={dairyWeek.labels}
               stacked={[
-                { name: 'Morning', color: '#22965c', data: dairyWeek.morning },
-                { name: 'Evening', color: '#7fcfa4', data: dairyWeek.evening },
+                { name: 'Morning', color: '#354A29', data: dairyWeek.morning },
+                { name: 'Evening', color: '#A3B18A', data: dairyWeek.evening },
               ]}
               height={230}
               formatValue={(v) => `${Math.round(v)} L`}
@@ -147,9 +147,9 @@ export default function DairyPage() {
           </div>
           <LineChart
             series={[
-              { name: 'Morning L', color: '#22965c', data: dairyWeek.morning },
-              { name: 'Evening L', color: '#7fcfa4', data: dairyWeek.evening },
-              { name: 'Total L', color: '#d4a537', data: dairyWeek.labels.map((_, i) => dairyWeek.morning[i]! + dairyWeek.evening[i]!) },
+              { name: 'Morning L', color: '#354A29', data: dairyWeek.morning },
+              { name: 'Evening L', color: '#A3B18A', data: dairyWeek.evening },
+              { name: 'Total L', color: '#B98A2F', data: dairyWeek.labels.map((_, i) => dairyWeek.morning[i]! + dairyWeek.evening[i]!) },
             ]}
             labels={dairyWeek.labels}
             height={200}

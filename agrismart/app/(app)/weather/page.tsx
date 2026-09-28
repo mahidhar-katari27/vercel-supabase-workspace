@@ -145,8 +145,8 @@ export default function WeatherPage() {
                   <LineChart
                     series={[
                       { name: 'High °C', color: '#d97a5e', data: f.map((d) => d.hi) },
-                      { name: 'Low °C', color: '#22965c', data: f.map((d) => d.lo) },
-                      { name: 'Rain %', color: '#3b8fd4', data: f.map((d) => d.rain) },
+                      { name: 'Low °C', color: '#354A29', data: f.map((d) => d.lo) },
+                      { name: 'Rain %', color: '#5F7D95', data: f.map((d) => d.rain) },
                     ]}
                     labels={f.map((d) => d.day)}
                     height={170}

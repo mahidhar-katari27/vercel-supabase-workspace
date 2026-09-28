@@ -9,52 +9,52 @@
  * ------------------------------------------------------------------ */
 @layer base {
   :root {
-    /* System stacks only — no webfont requests, so first paint is never
-       blocked on a font download. Critical for rural 3G connections. */
-    --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-      'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-    --font-display: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-      'Helvetica Neue', Arial, sans-serif;
+    /* Rultiva theme — bone canvas, charcoal-green ink, forest + olive greens,
+       one warm ember accent. Self-hosted Inter / Inter Tight via next/font. */
+    --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+      'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-display: var(--font-inter-tight), var(--font-inter), ui-sans-serif,
+      system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
 
-    --bg: 40 33% 97%;
-    --surface: 0 0% 100%;
-    --raised: 40 30% 99%;
-    --line: 150 14% 78%;
-    --ink: 152 28% 11%;
-    --muted: 152 11% 38%;
-    --faint: 152 9% 55%;
-    --shadow: 152 30% 12%;
+    --bg: 60 8% 91%;          /* #E7E6E2 bone */
+    --surface: 48 20% 96%;    /* #F6F5F1 card bone-white */
+    --raised: 45 25% 98%;
+    --line: 80 6% 78%;        /* hairline grey-green */
+    --ink: 90 36% 7%;         /* #10160A charcoal green */
+    --muted: 120 3% 41%;      /* #646B64 sage */
+    --faint: 90 2% 62%;       /* #A7A7A6 */
+    --shadow: 90 30% 10%;
 
-    --leaf-50: 145 45% 95%;
-    --leaf-400: 148 46% 48%;
-    --leaf-500: 149 63% 36%;
+    --leaf-50: 70 22% 88%;
+    --leaf-400: 66 26% 44%;   /* #818B54 olive */
+    --leaf-500: 100 29% 22%;  /* #354A29 forest */
 
-    --gold-400: 41 68% 58%;
+    --gold-400: 14 85% 52%;   /* ember orange — the single warm accent */
 
-    --glass: 0 0% 100%;
-    --glass-a: 0.62;
-    --ring: 149 63% 36%;
+    --glass: 48 22% 96%;
+    --glass-a: 0.72;
+    --ring: 100 29% 22%;
   }
 
   .dark {
-    --bg: 152 24% 6%;
-    --surface: 152 20% 9%;
-    --raised: 152 18% 12%;
-    --line: 150 14% 22%;
-    --ink: 145 26% 94%;
-    --muted: 146 12% 66%;
-    --faint: 146 10% 50%;
+    --bg: 90 36% 6%;          /* #10160A night field */
+    --surface: 90 30% 9%;
+    --raised: 90 26% 12%;
+    --line: 90 12% 24%;
+    --ink: 60 10% 92%;        /* bone ink on dark */
+    --muted: 80 6% 64%;
+    --faint: 80 5% 48%;
     --shadow: 0 0% 0%;
 
-    --leaf-50: 150 30% 14%;
-    --leaf-400: 152 62% 54%;
-    --leaf-500: 152 66% 45%;
+    --leaf-50: 90 24% 16%;
+    --leaf-400: 66 30% 56%;
+    --leaf-500: 80 34% 40%;
 
-    --gold-400: 43 74% 62%;
+    --gold-400: 14 85% 56%;
 
-    --glass: 152 20% 12%;
-    --glass-a: 0.55;
-    --ring: 152 62% 54%;
+    --glass: 90 26% 11%;
+    --glass-a: 0.66;
+    --ring: 66 30% 56%;
   }
 
   * {
@@ -123,24 +123,26 @@
   }
 
   .btn {
-    @apply relative inline-flex items-center justify-center gap-2 rounded-2xl
+    @apply relative inline-flex items-center justify-center gap-2 rounded-full
       px-5 py-3 text-sm font-semibold transition-all duration-300
       active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50
       select-none;
   }
   .btn-primary {
-    @apply btn text-white shadow-glow;
-    background-image: linear-gradient(135deg, #2aa468 0%, #157a48 58%, #0e4b30 100%);
+    @apply btn shadow-soft;
+    background: hsl(var(--ink));
+    color: hsl(var(--bg));
   }
   .btn-primary:hover {
-    filter: brightness(1.08);
+    filter: brightness(1.14);
     @apply shadow-lift -translate-y-0.5;
   }
   .btn-gold {
-    @apply btn text-earth-900;
-    background-image: linear-gradient(135deg, #f2d68a 0%, #d4a537 60%, #b3862a 100%);
+    @apply btn;
+    background: hsl(var(--leaf-500));
+    color: hsl(var(--bg));
   }
-  .btn-gold:hover { filter: brightness(1.06); @apply -translate-y-0.5 shadow-lift; }
+  .btn-gold:hover { filter: brightness(1.1); @apply -translate-y-0.5 shadow-lift; }
   .btn-ghost {
     @apply btn glass text-ink;
   }
@@ -158,8 +160,8 @@
     box-shadow: 0 8px 24px -10px hsl(4 74% 56% / 0.55);
   }
   .btn-danger:hover { @apply -translate-y-0.5; filter: brightness(1.06); }
-  .btn-lg { @apply px-7 py-4 text-base rounded-2xl; }
-  .btn-sm { @apply px-3.5 py-2 text-xs rounded-xl; }
+  .btn-lg { @apply px-7 py-4 text-base rounded-full; }
+  .btn-sm { @apply px-3.5 py-2 text-xs rounded-full; }
 
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full border border-line/80
@@ -179,7 +181,7 @@
   }
 
   .input {
-    @apply w-full rounded-2xl border border-line bg-surface/70 px-4 py-3
+    @apply w-full rounded-2xl border border-line bg-surface/80 px-4 py-3
       text-sm text-ink placeholder:text-faint transition-all duration-200
       focus:border-leaf-400/70 focus:bg-surface focus:outline-none
       focus:ring-4 focus:ring-leaf-400/10;
@@ -194,6 +196,16 @@
 
   .stat-value {
     @apply font-display text-3xl font-bold tracking-tight sm:text-4xl;
+  }
+
+  .vlines {
+    background-image: repeating-linear-gradient(
+      to right, hsl(var(--line) / 0.35) 0 1px, transparent 1px 12.5%);
+  }
+  .spark {
+    color: hsl(var(--leaf-500));
+    text-shadow: 0 0 18px hsl(var(--leaf-400) / 0.5);
+    user-select: none;
   }
 
   .hairline {
@@ -295,7 +307,7 @@ body.intro-active {
   overflow: hidden !important;
   overscroll-behavior: none;
   /* Match the intro so any overscroll gutter is the same colour, never white. */
-  background: #060f0a;
+  background: #10160a;
 }
 
 .intro-overlay {
@@ -313,7 +325,7 @@ body.intro-active {
   border: 0;
   z-index: 2147483000;      /* above navbar, bottom nav and the assistant */
   overflow: hidden;
-  background: #060f0a;
+  background: #10160a;
   contain: paint;           /* nothing behind can bleed through */
   touch-action: none;       /* no scroll/pan gestures reach the page */
   overscroll-behavior: none;
@@ -331,7 +343,7 @@ html[data-intro='seen'] .intro-overlay {
    between the stylesheet arriving and the first body element painting can show
    the browser's default (white) background. */
 html[data-intro='playing'] {
-  background: #060f0a;
+  background: #10160a;
 }
 
 /* Every animation layer lives inside the overlay and fills it. */

@@ -277,8 +277,8 @@ export default function PlannerPage() {
                   <BarChart
                     labels={results.map((r) => r.crop.split(' (')[0]!)}
                     stacked={[
-                      { name: 'Est. cost / acre', color: '#c0553f', data: results.map((r) => r.investment) },
-                      { name: 'Est. revenue / acre', color: '#22965c', data: results.map((r) => r.revenue) },
+                      { name: 'Est. cost / acre', color: '#C0562A', data: results.map((r) => r.investment) },
+                      { name: 'Est. revenue / acre', color: '#354A29', data: results.map((r) => r.revenue) },
                     ]}
                     height={220}
                     formatValue={(v) => inr(v, { compact: true })}
@@ -332,8 +332,8 @@ export default function PlannerPage() {
                 <h3 className="mb-2 text-sm font-bold">On {acres} acres</h3>
                 <Donut
                   data={[
-                    { label: 'Est. cost', value: detail.investment * acres, color: '#c0553f' },
-                    { label: 'Est. margin', value: Math.max(0, (detail.revenue - detail.investment) * acres), color: '#22965c' },
+                    { label: 'Est. cost', value: detail.investment * acres, color: '#C0562A' },
+                    { label: 'Est. margin', value: Math.max(0, (detail.revenue - detail.investment) * acres), color: '#354A29' },
                   ]}
                   centerValue={inr(detail.revenue * acres, { compact: true })}
                   centerLabel="Est. revenue"

@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils'
 import { Card, Chip, Progress } from '@/components/ui'
 import { Donut, Gauge } from '@/components/charts'
 
-const DONUT = ['#22965c', '#d4a537', '#c0553f', '#7c5cbf', '#3b82c4', '#3f9c8f', '#a3762f', '#8a8f98']
+const DONUT = ['#354A29', '#818B54', '#C0562A', '#B98A2F', '#5F7D95', '#A3B18A', '#646B64', '#8d6a45']
 
 export function Disclaimer({ className }: { className?: string }) {
   return <p className={cn('text-[11px] leading-relaxed text-faint', className)}>⚠️ {DISCLAIMER}</p>
@@ -487,5 +487,5 @@ export function CompareTable({ plan, keys, onRemove }: { plan: FarmPlan; keys: s
 const fitScore = (plan: FarmPlan, c: CropInfo) => suitabilityFor(plan, c).score
 
 export function FitRing({ value }: { value: number }) {
-  return <Gauge value={value} size={110} label={`${value}% fit`} tone={value >= 80 ? '#22965c' : value >= 60 ? '#d4a537' : '#c0553f'} />
+  return <Gauge value={value} size={110} label={`${value}% fit`} tone={value >= 80 ? '#354A29' : value >= 60 ? '#B98A2F' : '#C0562A'} />
 }

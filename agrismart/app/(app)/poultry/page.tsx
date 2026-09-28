@@ -15,10 +15,10 @@ export default function PoultryPage() {
   const feedPerBird = p.feedKgPerDay / p.birds
 
   const costs = [
-    { label: 'Feed', value: p.feedCost, color: '#d4a537' },
+    { label: 'Feed', value: p.feedCost, color: '#B98A2F' },
     { label: 'Labour', value: p.labour, color: '#8d6a45' },
-    { label: 'Electricity', value: p.electricity, color: '#3b8fd4' },
-    { label: 'Medicine', value: p.medicine, color: '#22965c' },
+    { label: 'Electricity', value: p.electricity, color: '#5F7D95' },
+    { label: 'Medicine', value: p.medicine, color: '#354A29' },
   ]
 
   return (
@@ -73,9 +73,9 @@ export default function PoultryPage() {
             <BarChart
               labels={poultryMonthly.labels}
               stacked={[
-                { name: 'Egg revenue', color: '#22965c', data: poultryMonthly.eggRevenue },
-                { name: 'Bird sales', color: '#7fcfa4', data: poultryMonthly.birdRevenue },
-                { name: 'Expenses', color: '#c0553f', data: poultryMonthly.expenses },
+                { name: 'Egg revenue', color: '#354A29', data: poultryMonthly.eggRevenue },
+                { name: 'Bird sales', color: '#A3B18A', data: poultryMonthly.birdRevenue },
+                { name: 'Expenses', color: '#C0562A', data: poultryMonthly.expenses },
               ]}
               height={250}
               formatValue={(v) => inr(v, { compact: true })}
@@ -85,7 +85,7 @@ export default function PoultryPage() {
               <LineChart
                 series={[{
                   name: 'Net',
-                  color: '#d4a537',
+                  color: '#B98A2F',
                   data: poultryMonthly.labels.map((_, i) =>
                     (poultryMonthly.eggRevenue[i] ?? 0) + (poultryMonthly.birdRevenue[i] ?? 0) - (poultryMonthly.expenses[i] ?? 0)),
                 }]}

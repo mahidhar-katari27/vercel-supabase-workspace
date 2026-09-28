@@ -103,7 +103,7 @@ export default function AdminPage() {
               </div>
             </div>
             <LineChart
-              series={[{ name: metric, color: '#22965c', data: growthSeries[metric] }]}
+              series={[{ name: metric, color: '#354A29', data: growthSeries[metric] }]}
               labels={growthMonths} height={250}
               formatValue={(v) => num(Math.round(v))}
             />
@@ -126,10 +126,10 @@ export default function AdminPage() {
               <h2 className="mb-4 text-base font-bold">Users by role</h2>
               <Donut
                 data={[
-                  { label: 'Farmers', value: 48210, color: '#22965c' },
-                  { label: 'Buyers', value: 4180, color: '#3b8fd4' },
-                  { label: 'Providers', value: 1290, color: '#d4a537' },
-                  { label: 'Experts', value: 318, color: '#c0553f' },
+                  { label: 'Farmers', value: 48210, color: '#354A29' },
+                  { label: 'Buyers', value: 4180, color: '#5F7D95' },
+                  { label: 'Providers', value: 1290, color: '#B98A2F' },
+                  { label: 'Experts', value: 318, color: '#C0562A' },
                 ]}
                 centerValue="53,998"
                 centerLabel="Total accounts"

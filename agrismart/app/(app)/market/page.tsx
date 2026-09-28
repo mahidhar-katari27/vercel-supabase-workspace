@@ -117,7 +117,7 @@ export default function MarketPage() {
                           <Sparkline
                             data={priceHistory.series.find((s) => r.crop.toLowerCase().startsWith(s.name.toLowerCase()))?.data
                               ?? [r.prev * 0.96, r.prev * 0.98, r.prev, r.price * 0.99, r.price]}
-                            color={up ? '#22965c' : '#c0553f'} width={80} height={26}
+                            color={up ? '#354A29' : '#C0562A'} width={80} height={26}
                           />
                         </div>
                       </td>

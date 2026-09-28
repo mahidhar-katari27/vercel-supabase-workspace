@@ -106,8 +106,8 @@ export default function FinancePage() {
             <BarChart
               labels={monthlyFinance.labels}
               stacked={[
-                { name: 'Investment', color: '#c0553f', data: monthlyFinance.investment },
-                { name: 'Revenue', color: '#22965c', data: monthlyFinance.revenue },
+                { name: 'Investment', color: '#C0562A', data: monthlyFinance.investment },
+                { name: 'Revenue', color: '#354A29', data: monthlyFinance.revenue },
               ]}
               height={240}
               formatValue={(v) => inr(v, { compact: true })}

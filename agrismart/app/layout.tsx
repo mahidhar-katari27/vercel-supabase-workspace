@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from 'next'
+import { Inter, Inter_Tight } from 'next/font/google'
 import './globals.css'
+
+/* Self-hosted at build time — no render-blocking webfont requests. */
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
+const interTight = Inter_Tight({ subsets: ['latin'], weight: ['500', '600', '700'], variable: '--font-inter-tight', display: 'swap' })
 import { ThemeProvider } from '@/components/ThemeProvider'
 import IntroGate from '@/components/IntroGate'
 
@@ -64,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
      * stretches to hundreds of milliseconds. <body> always has an opaque themed
      * background, so once the page is up this is simply painted over.
      */
-    <html lang="en" suppressHydrationWarning style={{ background: '#060f0a' }}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${interTight.variable}`} style={{ background: '#10160a' }}>
       <body>
         <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT }} />
         <ThemeProvider>

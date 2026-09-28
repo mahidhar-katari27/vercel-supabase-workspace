@@ -168,7 +168,7 @@ export function LineChart({
 /* -------------------------------------------------------------------- bar */
 
 export function BarChart({
-  labels, values, height = 220, color = '#22965c', formatValue = (v: number) => `₹${v.toLocaleString('en-IN')}`,
+  labels, values, height = 220, color = '#354A29', formatValue = (v: number) => `₹${v.toLocaleString('en-IN')}`,
   stacked, className,
 }: {
   labels: string[]; values?: number[]; height?: number; color?: string
@@ -302,7 +302,7 @@ export function Donut({
 /* --------------------------------------------------------------- sparkline */
 
 export function Sparkline({
-  data, color = '#22965c', width = 96, height = 30, className,
+  data, color = '#354A29', width = 96, height = 30, className,
 }: { data: number[]; color?: string; width?: number; height?: number; className?: string }) {
   const max = Math.max(...data), min = Math.min(...data)
   const span = max - min || 1
@@ -320,7 +320,7 @@ export function Sparkline({
 /* ---------------------------------------------------------------- gauge */
 
 export function Gauge({
-  value, size = 132, label, tone = '#22965c', className,
+  value, size = 132, label, tone = '#354A29', className,
 }: { value: number; size?: number; label?: string; tone?: string; className?: string }) {
   const { ref, inView } = useOnce<HTMLDivElement>()
   const r = size / 2 - 12

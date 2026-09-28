@@ -167,7 +167,7 @@ export default function AquaPage() {
             <div className="mt-4">
               <p className="label mb-2">Projected growth curve (avg body weight, grams)</p>
               <LineChart
-                series={[{ name: 'ABW', color: '#3b8fd4', data: growthCurve(pond.doc) }]}
+                series={[{ name: 'ABW', color: '#5F7D95', data: growthCurve(pond.doc) }]}
                 labels={growthLabels(pond.doc)}
                 height={190}
                 formatValue={(v) => `${Math.round(v)} g`}

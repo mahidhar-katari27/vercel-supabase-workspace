@@ -496,7 +496,7 @@ export default function CropDoctorPage() {
             <Reveal>
               <Card>
                 <div className="flex items-center gap-5">
-                  <Gauge value={result?.confidence ?? 0} size={120} label="Pattern match" tone="#d4a537" />
+                  <Gauge value={result?.confidence ?? 0} size={120} label="Pattern match" tone="#B98A2F" />
                   <div className="text-sm leading-relaxed text-muted">
                     <p className="font-bold text-ink">What this number means</p>
                     <p className="mt-1">

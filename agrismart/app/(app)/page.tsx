@@ -36,71 +36,124 @@ export default function LandingPage() {
   return (
     <>
       {/* ------------------------------------------------------------- hero */}
-      <section className="section relative pt-4 sm:pt-8">
-        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
-          <div>
-            <motion.div
-              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={spring}
-              className="mb-5 inline-flex items-center gap-2 rounded-full border border-leaf-400/30 bg-leaf-400/10 px-3.5 py-1.5 text-xs font-bold text-leaf-700 dark:text-leaf-300"
-            >
-              <span className="relative flex h-2 w-2" aria-hidden>
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-leaf-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-leaf-500" />
-              </span>
-              AgriSmart 2.0 · AI-Powered Farming
-            </motion.div>
+      <section className="relative overflow-hidden pt-6 sm:pt-10">
+        <div className="vlines pointer-events-none absolute inset-0 opacity-50" aria-hidden />
+        <span className="spark absolute left-[11%] top-24 text-2xl" aria-hidden>✦</span>
+        <span className="spark absolute right-[13%] top-40 text-sm" aria-hidden>✦</span>
+        <span className="spark absolute left-[27%] top-80 text-sm" aria-hidden>＋</span>
+        <span className="spark absolute right-[25%] top-96 text-lg" aria-hidden>✦</span>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ ...spring, delay: 0.06 }}
-              className="font-display text-[2.6rem] font-black leading-[1.04] tracking-tight sm:text-6xl lg:text-[4.1rem]"
-            >
-              Smarter Decisions.
-              <br />
-              <span className="text-gradient-leaf">Better Farming.</span>
-            </motion.h1>
+        <div className="section relative text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={spring}
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-line/70 bg-surface/70 px-4 py-1.5 text-[11px] font-bold tracking-wide text-muted"
+          >
+            <span className="relative flex h-1.5 w-1.5" aria-hidden>
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-leaf-400 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-leaf-500" />
+            </span>
+            Top-Notch Agri Intelligence Platform
+          </motion.div>
 
-            <motion.p
-              initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ ...spring, delay: 0.14 }}
-              className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
-            >
-              One intelligent platform for crop health, farm finances, markets,
-              government schemes and agricultural services.
-            </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.06 }}
+            className="mx-auto max-w-4xl font-display text-[2.9rem] font-semibold leading-[1.02] tracking-[-0.03em] sm:text-6xl lg:text-[4.6rem]"
+          >
+            From Land To
+            <br />
+            Better Decisions.
+          </motion.h1>
 
-            <motion.div
-              initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ ...spring, delay: 0.22 }}
-              className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center"
-            >
-              <Link href="/dashboard" className="btn btn-primary btn-lg group">
-                <span aria-hidden>🌱</span> Start Farming
-                <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden>→</span>
-              </Link>
-              <Link href="/crop-doctor" className="btn btn-ghost btn-lg">
-                <span aria-hidden>🤖</span> Try AI Crop Doctor
-              </Link>
-            </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.14 }}
+            className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-muted sm:text-base"
+          >
+            One intelligent platform for crop health, farm finances, markets,
+            government schemes and agricultural services — in English, Telugu and Tenglish.
+          </motion.p>
 
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.7 }}
-              className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3"
-            >
-              {[
-                ['25+', 'Modules'],
-                ['3', 'Languages'],
-                ['5', 'User roles'],
-              ].map(([v, l]) => (
-                <div key={l} className="flex items-baseline gap-2">
-                  <span className="font-display text-xl font-black">{v}</span>
-                  <span className="text-xs font-medium uppercase tracking-wider text-faint">{l}</span>
-                </div>
-              ))}
-            </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.22 }}
+            className="mt-8 flex flex-wrap items-center justify-center gap-3"
+          >
+            <Link href="/start" className="btn btn-primary btn-lg group">
+              Get Started
+              <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden>→</span>
+            </Link>
+            <Link href="/dashboard" className="btn btn-ghost btn-lg">Open dashboard</Link>
+            <Link href="/crop-doctor" className="btn btn-quiet btn-lg"><span aria-hidden>🤖</span> AI Crop Doctor</Link>
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.7 }}
+            className="mt-4 text-[11px] text-faint"
+          >
+            25+ modules · 3 languages · 5 user roles · demo data clearly labelled
+          </motion.p>
+        </div>
+
+        {/* full-bleed photo band */}
+        <motion.div
+          initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.18 }}
+          className="relative mt-12 h-[380px] w-full sm:h-[460px]"
+        >
+          <Image src="/start/hero.jpg" alt="Farmer walking a young field at sunrise" fill priority sizes="100vw" className="object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" aria-hidden />
+          <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-3 p-6 sm:p-10">
+            <p className="max-w-sm font-display text-2xl font-semibold leading-tight text-white sm:text-3xl">
+              The journey from soil to sale — in one picture.
+            </p>
+            <Link href="/demo" className="text-xs font-semibold text-white/85 underline-offset-4 hover:underline">
+              Book a free demo experience
+            </Link>
           </div>
+        </motion.div>
+      </section>
 
-          <HeroPreview />
+      {/* -------------------------------------------------------- stats bar */}
+      <section className="section">
+        <div className="grid grid-cols-2 gap-y-8 border-b border-line/60 py-9 md:grid-cols-4 md:divide-x md:divide-line/60">
+          {[
+            ['50+', 'Years of field experience'],
+            ['200+', 'Acres under management'],
+            ['120,000+', 'Farmers reached statewide'],
+            ['₹15 Billion', 'Agricultural produce tracked'],
+          ].map(([v, l], i) => (
+            <Reveal key={l} delay={i * 0.06}>
+              <div className="px-6 text-center md:text-left">
+                <p className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{v}</p>
+                <p className="mt-1 text-xs text-muted">{l}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <p className="flex items-center justify-end gap-2 pt-2 text-[10px] text-faint">
+          Illustrative brand figures — demo dataset <DemoTag />
+        </p>
+      </section>
+
+      {/* ------------------------------------------------- editorial statement */}
+      <section className="section mt-16 sm:mt-24">
+        <div className="grid gap-10 lg:grid-cols-[0.85fr_1.6fr]">
+          <div className="flex flex-col justify-between gap-12">
+            <p className="text-sm text-muted">2026</p>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+              <span className="font-semibold text-ink">Crop farming</span>
+              <span className="text-faint">Aqua & livestock</span>
+              <span className="text-faint">Agri services</span>
+            </div>
+          </div>
+          <div>
+            <Reveal>
+              <h2 className="max-w-2xl font-display text-3xl font-semibold leading-[1.15] tracking-[-0.02em] sm:text-[2.6rem]">
+                Despite advances in agri-tech, labour-intensive farming still runs on
+                guesswork — scattered prices, weather surprises and paper records.
+              </h2>
+            </Reveal>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2">
+              <p className="text-sm font-semibold">Grounded in the field.</p>
+              <p className="text-sm font-semibold">Built for what&rsquo;s next.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -420,102 +473,20 @@ export default function LandingPage() {
   )
 }
 
-/* ------------------------------------------------------------ hero visual */
+/* ------------------------------------------------------------ demo steps */
 
-function HeroPreview() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.94, y: 24 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ ...spring, delay: 0.2 }}
-      className="relative mx-auto w-full max-w-lg lg:max-w-none"
-    >
-      {/* Main dashboard card */}
-      <div className="glass-strong relative rounded-4xl p-4 sm:p-5">
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-xl bg-leaf-gradient text-sm" aria-hidden>🌾</span>
-            <div>
-              <p className="text-xs font-bold leading-tight">Farm overview</p>
-              <p className="text-[10px] text-faint">{farmer.location.split(',')[0]} · {farmer.season}</p>
-            </div>
-          </div>
-          <DemoTag />
-        </div>
+const DEMO_STEPS = [
+  { href: '/dashboard', title: 'Farmer dashboard', body: 'Land, profit, crop health and market at a glance' },
+  { href: '/farm', title: 'Select Land 01', body: '2.5-acre paddy farm in Vijayawada' },
+  { href: '/crop-doctor', title: 'AI Crop Doctor', body: 'Upload a sample leaf image and see the assessment' },
+  { href: '/finance', title: 'Farm Finance', body: 'Expenses by category and estimated profit' },
+  { href: '/market', title: 'Market Intelligence', body: 'Sample mandi prices and 12-week history' },
+  { href: '/schemes', title: 'Check my eligibility', body: 'Potentially relevant schemes with documents' },
+  { href: '/agrirent', title: 'Book a tractor', body: 'Machine, date, time, driver, confirm' },
+  { href: '/community', title: 'Ask the community', body: 'Questions answered by farmers and experts' },
+]
 
-        <div className="grid grid-cols-2 gap-2.5">
-          <MiniStat icon="🌾" label="My land" value={`${farmer.totalAcres} Acres`} sub={`${farmer.activeCrops} active crops`} />
-          <MiniStat icon="💰" label="Farm profit" value={inr(financeSummary.estimatedProfit, { compact: true })} sub="+12.4%" up />
-          <MiniStat icon="🌱" label="Crop health" value="Healthy" sub="92% score" up />
-          <MiniStat icon="📈" label="Paddy" value="₹2,350" sub="↑ 4.2% / Qtl" up />
-        </div>
-
-        <div className="mt-3 rounded-3xl border border-line/60 bg-surface/40 p-3">
-          <div className="mb-1.5 flex items-center justify-between">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-muted">12-week price trend</p>
-            <span className="text-[10px] text-faint">Sample</span>
-          </div>
-          <LineChart series={priceHistory.series} labels={priceHistory.labels} height={126} yTicks={3}
-            formatValue={(v) => `₹${Math.round(v / 100) / 10}k`} />
-        </div>
-      </div>
-
-      {/* Floating satellites */}
-      <Float className="-left-3 top-16 hidden w-44 sm:block" delay={0}>
-        <FloatCard icon="🌦️" title="Weather" lines={[`${weather.now.temp}°C · ${weather.now.condition}`, `Rain ${weather.now.rain}% · Humidity ${weather.now.humidity}%`]} />
-      </Float>
-      <Float className="-right-4 top-40 hidden w-48 sm:block" delay={0.8}>
-        <FloatCard icon="🌧️" title="Alert" lines={[alerts[0]!.title, alerts[0]!.when]} tone="warn" />
-      </Float>
-      <Float className="-bottom-5 left-6 hidden w-52 sm:block" delay={1.6}>
-        <FloatCard icon="🏛️" title="Scheme match" lines={['PM-KISAN — eligible', '3 more potentially relevant']} tone="ok" />
-      </Float>
-      <Float className="-right-2 -bottom-6 hidden w-40 sm:block" delay={2.2}>
-        <FloatCard icon="🤖" title="AI Assistant" lines={['Ask in Telugu', 'Voice enabled']} />
-      </Float>
-    </motion.div>
-  )
-}
-
-function Float({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  return (
-    <motion.div className={`absolute ${className}`}
-      initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-      transition={{ ...spring, delay: 0.5 + delay * 0.18 }}>
-      <div className="animate-float-slow">{children}</div>
-    </motion.div>
-  )
-}
-
-function FloatCard({ icon, title, lines, tone = 'default' }: { icon: string; title: string; lines: string[]; tone?: 'default' | 'warn' | 'ok' }) {
-  const tones: Record<string, string> = {
-    default: 'border-line/70',
-    warn: 'border-gold-400/40',
-    ok: 'border-leaf-400/40',
-  }
-  return (
-    <div className={`glass-strong rounded-3xl border p-3 shadow-lift ${tones[tone]}`}>
-      <div className="flex items-center gap-2">
-        <span className="text-base" aria-hidden>{icon}</span>
-        <p className="text-[11px] font-bold uppercase tracking-wider text-muted">{title}</p>
-      </div>
-      {lines.map((l) => <p key={l} className="mt-1 truncate text-xs font-semibold">{l}</p>)}
-    </div>
-  )
-}
-
-function MiniStat({ icon, label, value, sub, up }: { icon: string; label: string; value: string; sub: string; up?: boolean }) {
-  return (
-    <div className="rounded-2xl border border-line/60 bg-surface/50 p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-leaf-400/40">
-      <div className="flex items-center gap-1.5">
-        <span className="text-sm" aria-hidden>{icon}</span>
-        <p className="text-[10px] font-bold uppercase tracking-wider text-muted">{label}</p>
-      </div>
-      <p className="mt-1 font-display text-lg font-black leading-tight">{value}</p>
-      <p className={cnUpDown(!!up, 'text-[11px] font-semibold')}>{sub}</p>
-    </div>
-  )
-}
+/* ------------------------------------------------------------- card + misc */
 
 function Card2({ title, icon, right, children }: { title: string; icon: string; right?: React.ReactNode; children: React.ReactNode }) {
   return (
@@ -530,19 +501,6 @@ function Card2({ title, icon, right, children }: { title: string; icon: string; 
     </div>
   )
 }
-
-/* --------------------------------------------------------------- demo map */
-
-const DEMO_STEPS = [
-  { href: '/dashboard', title: 'Farmer dashboard', body: 'Land, profit, crop health and market at a glance' },
-  { href: '/farm', title: 'Select Land 01', body: '2.5-acre paddy farm in Vijayawada' },
-  { href: '/crop-doctor', title: 'AI Crop Doctor', body: 'Upload a sample leaf image and see the assessment' },
-  { href: '/finance', title: 'Farm Finance', body: 'Expenses by category and estimated profit' },
-  { href: '/market', title: 'Market Intelligence', body: 'Sample mandi prices and 12-week history' },
-  { href: '/schemes', title: 'Check my eligibility', body: 'Potentially relevant schemes with documents' },
-  { href: '/agrirent', title: 'Book a tractor', body: 'Machine, date, time, driver, confirm' },
-  { href: '/community', title: 'Ask the community', body: 'Questions answered by farmers and experts' },
-]
 
 function cnUpDown(up: boolean, extra = '') {
   return `${extra} ${up ? 'text-leaf-600 dark:text-leaf-400' : 'text-red-500'} font-bold tabular-nums`

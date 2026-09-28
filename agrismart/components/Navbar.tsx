@@ -17,6 +17,7 @@ export default function Navbar() {
   const [sheet, setSheet] = useState(false)
   const [bell, setBell] = useState(false)
   const [profile, setProfile] = useState(false)
+  const [more, setMore] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -25,7 +26,7 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  useEffect(() => { setSheet(false); setBell(false); setProfile(false) }, [pathname])
+  useEffect(() => { setSheet(false); setBell(false); setProfile(false); setMore(false) }, [pathname])
 
   const unread = notifications.filter((n) => !n.read).length
 
@@ -61,34 +62,78 @@ export default function Navbar() {
               </span>
             </Link>
 
-            {/* Desktop links */}
-            <div className="mx-auto hidden items-center gap-0.5 lg:flex">
-              {navItems.map((item) => {
-                const on = pathname === item.href
-                return (
-                  <Link
-                    key={item.href} href={item.href}
-                    className={cn(
-                      'relative whitespace-nowrap rounded-xl px-3 py-2 text-[13px] font-semibold transition-colors duration-200',
-                      on ? 'text-white' : 'text-muted hover:text-ink',
-                    )}
+            {/* Desktop — centred Rultiva pill nav */}
+            <div className="relative mx-auto hidden lg:block">
+              <div className="flex items-center gap-0.5 rounded-full bg-ink px-1.5 py-1.5 shadow-lift">
+                {navItems.filter((i) => i.group === 'main').map((item) => {
+                  const on = pathname === item.href
+                  return (
+                    <Link
+                      key={item.href} href={item.href}
+                      className={cn(
+                        'relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors',
+                        on ? 'text-ink' : 'text-bg/70 hover:text-bg',
+                      )}
+                    >
+                      {on && (
+                        <motion.span layoutId="nav-pill" className="absolute inset-0 rounded-full bg-bg shadow-soft" transition={spring} />
+                      )}
+                      <span className="relative">{item.label}</span>
+                    </Link>
+                  )
+                })}
+                <button
+                  type="button" onClick={() => setMore((v) => !v)} aria-expanded={more}
+                  className={cn(
+                    'relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors',
+                    more ? 'text-ink' : 'text-bg/70 hover:text-bg',
+                  )}
+                >
+                  {more && (
+                    <motion.span layoutId="nav-pill" className="absolute inset-0 rounded-full bg-bg shadow-soft" transition={spring} />
+                  )}
+                  <span className="relative">More <span aria-hidden>▾</span></span>
+                </button>
+              </div>
+              <AnimatePresence>
+                {more && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                    transition={spring}
+                    className="card absolute left-1/2 top-[calc(100%+12px)] z-50 w-[720px] -translate-x-1/2 p-5"
                   >
-                    {on && (
-                      <motion.span layoutId="nav-pill" className="absolute inset-0 -z-10 rounded-xl bg-leaf-gradient shadow-glow" transition={spring} />
-                    )}
-                    {item.short ? (
-                      <>
-                        <span className="xl:hidden">{item.short}</span>
-                        <span className="hidden xl:inline">{item.label}</span>
-                      </>
-                    ) : item.label}
-                  </Link>
-                )
-              })}
+                    <div className="grid grid-cols-3 gap-5">
+                      {allSections.map((g) => (
+                        <div key={g.title}>
+                          <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-faint">{g.title}</p>
+                          <ul className="space-y-0.5">
+                            {g.items.map((it) => (
+                              <li key={it.href}>
+                                <Link
+                                  href={it.href} onClick={() => setMore(false)}
+                                  className={cn(
+                                    'flex items-center gap-2 rounded-xl px-2 py-1.5 text-[13px] font-medium text-muted transition-colors hover:bg-leaf-400/10 hover:text-ink',
+                                    pathname === it.href && 'bg-leaf-400/10 text-ink',
+                                  )}
+                                >
+                                  <span aria-hidden>{it.icon}</span>{it.label}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Right cluster */}
             <div className="ml-auto flex items-center gap-1 lg:ml-0">
+              <Link href="/auth" className="btn-ghost mr-1 hidden !px-4 !py-2 text-xs xl:inline-flex">
+                Sign in
+              </Link>
               <ThemeToggle theme={theme} toggle={toggle} />
 
               <div className="relative">

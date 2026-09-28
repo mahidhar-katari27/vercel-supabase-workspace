@@ -223,9 +223,9 @@ export const marketRows: MarketRow[] = [
 export const priceHistory = {
   labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10', 'W11', 'W12'],
   series: [
-    { name: 'Paddy', color: '#22965c', data: [2080, 2110, 2095, 2140, 2180, 2165, 2200, 2230, 2210, 2255, 2290, 2350] },
-    { name: 'Cotton', color: '#d4a537', data: [6900, 6980, 7050, 7120, 7180, 7240, 7300, 7260, 7190, 7150, 7240, 7100] },
-    { name: 'Chilli', color: '#c0553f', data: [11200, 11480, 11750, 12100, 12400, 12350, 12600, 12800, 12950, 12980, 13200, 13500] },
+    { name: 'Paddy', color: '#354A29', data: [2080, 2110, 2095, 2140, 2180, 2165, 2200, 2230, 2210, 2255, 2290, 2350] },
+    { name: 'Cotton', color: '#B98A2F', data: [6900, 6980, 7050, 7120, 7180, 7240, 7300, 7260, 7190, 7150, 7240, 7100] },
+    { name: 'Chilli', color: '#C0562A', data: [11200, 11480, 11750, 12100, 12400, 12350, 12600, 12800, 12950, 12980, 13200, 13500] },
   ],
 }
 
@@ -399,14 +399,14 @@ export const driverPool = [
 /* ----------------------------------------------------------------- finance */
 
 export const expenseCategories = [
-  { id: 'seeds', label: 'Seeds', icon: '🌱', amount: 18500, color: '#22965c' },
-  { id: 'fertilizer', label: 'Fertilizer', icon: '🧪', amount: 32400, color: '#4bb37c' },
-  { id: 'pesticides', label: 'Pesticides', icon: '🐛', amount: 14200, color: '#c0553f' },
-  { id: 'labour', label: 'Labour', icon: '🧑‍🌾', amount: 46800, color: '#d4a537' },
+  { id: 'seeds', label: 'Seeds', icon: '🌱', amount: 18500, color: '#354A29' },
+  { id: 'fertilizer', label: 'Fertilizer', icon: '🧪', amount: 32400, color: '#818B54' },
+  { id: 'pesticides', label: 'Pesticides', icon: '🐛', amount: 14200, color: '#C0562A' },
+  { id: 'labour', label: 'Labour', icon: '🧑‍🌾', amount: 46800, color: '#B98A2F' },
   { id: 'machinery', label: 'Machinery', icon: '🚜', amount: 28600, color: '#8d6a45' },
-  { id: 'irrigation', label: 'Irrigation', icon: '💧', amount: 12900, color: '#3b8fd4' },
-  { id: 'transport', label: 'Transportation', icon: '🚚', amount: 9400, color: '#7fcfa4' },
-  { id: 'other', label: 'Other', icon: '📦', amount: 6300, color: '#93a79b' },
+  { id: 'irrigation', label: 'Irrigation', icon: '💧', amount: 12900, color: '#5F7D95' },
+  { id: 'transport', label: 'Transportation', icon: '🚚', amount: 9400, color: '#A3B18A' },
+  { id: 'other', label: 'Other', icon: '📦', amount: 6300, color: '#646B64' },
 ]
 
 export const monthlyFinance = {
@@ -425,10 +425,10 @@ export const financeSummary = {
 }
 
 export const incomeBreakdown = [
-  { label: 'Paddy sales', value: 168000, color: '#22965c' },
-  { label: 'Chilli sales', value: 74000, color: '#c0553f' },
-  { label: 'Cotton sales', value: 31000, color: '#d4a537' },
-  { label: 'Dairy', value: 12000, color: '#3b8fd4' },
+  { label: 'Paddy sales', value: 168000, color: '#354A29' },
+  { label: 'Chilli sales', value: 74000, color: '#C0562A' },
+  { label: 'Cotton sales', value: 31000, color: '#B98A2F' },
+  { label: 'Dairy', value: 12000, color: '#5F7D95' },
 ]
 
 /* -------------------------------------------------------------------- aqua */
@@ -440,12 +440,12 @@ export const aquaPonds = [
 ]
 
 export const aquaCosts = [
-  { id: 'feed', label: 'Feed', icon: '🍤', amount: 214000, color: '#3b8fd4' },
-  { id: 'medicine', label: 'Medicine', icon: '🧪', amount: 18600, color: '#22965c' },
-  { id: 'labour', label: 'Labour', icon: '🧑‍🌾', amount: 62000, color: '#d4a537' },
+  { id: 'feed', label: 'Feed', icon: '🍤', amount: 214000, color: '#5F7D95' },
+  { id: 'medicine', label: 'Medicine', icon: '🧪', amount: 18600, color: '#354A29' },
+  { id: 'labour', label: 'Labour', icon: '🧑‍🌾', amount: 62000, color: '#B98A2F' },
   { id: 'electricity', label: 'Electricity', icon: '⚡', amount: 88500, color: '#8d6a45' },
-  { id: 'seed', label: 'Seed', icon: '🌱', amount: 54000, color: '#7fcfa4' },
-  { id: 'other', label: 'Other', icon: '📦', amount: 12400, color: '#93a79b' },
+  { id: 'seed', label: 'Seed', icon: '🌱', amount: 54000, color: '#A3B18A' },
+  { id: 'other', label: 'Other', icon: '📦', amount: 12400, color: '#646B64' },
 ]
 
 export const aquaSummary = { investment: 449500, revenue: 612000, profit: 162500, fcr: 1.42, survival: 78, doc: 74 }

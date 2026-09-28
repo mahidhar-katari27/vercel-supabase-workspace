@@ -71,10 +71,10 @@ const config: Config = {
       backgroundImage: {
         'grid-faint':
           'linear-gradient(to right, hsl(var(--line) / 0.5) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--line) / 0.5) 1px, transparent 1px)',
-        'leaf-gradient': 'linear-gradient(135deg, #22965c 0%, #157a48 55%, #0e4b30 100%)',
-        'gold-gradient': 'linear-gradient(135deg, #e6bf5c 0%, #d4a537 60%, #b3862a 100%)',
+        'leaf-gradient': 'linear-gradient(135deg, #354A29 0%, #2A3D20 55%, #10160A 100%)',
+        'gold-gradient': 'linear-gradient(135deg, #F07A3E 0%, #E85D2A 60%, #C24A1C 100%)',
         'hero-glow':
-          'radial-gradient(60% 50% at 20% 10%, hsl(var(--leaf-400) / 0.18) 0%, transparent 60%), radial-gradient(50% 45% at 85% 25%, hsl(var(--gold-400) / 0.14) 0%, transparent 60%)',
+          'radial-gradient(60% 50% at 20% 10%, hsl(var(--leaf-400) / 0.16) 0%, transparent 60%), radial-gradient(50% 45% at 85% 25%, hsl(var(--gold-400) / 0.08) 0%, transparent 60%)',
       },
       backgroundSize: { grid: '56px 56px' },
       keyframes: {
