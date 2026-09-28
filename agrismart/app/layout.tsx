@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Inter_Tight } from 'next/font/google'
+import { AuthProvider } from '@/lib/auth'
 import './globals.css'
 
 /* Self-hosted at build time — no render-blocking webfont requests. */
@@ -73,7 +74,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT }} />
         <ThemeProvider>
-          <IntroGate>{children}</IntroGate>
+          <AuthProvider>
+            <IntroGate>{children}</IntroGate>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

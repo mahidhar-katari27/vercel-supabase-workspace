@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useTheme } from '@/components/ThemeProvider'
+import { useAuth } from '@/lib/auth'
 import { Avatar, Card, Chip, Counter, DemoTag, PageHeader, Progress, Reveal, spring } from '@/components/ui'
 import { bookings, farmer, financeSummary, lands } from '@/lib/data'
 import { cn, inr, num } from '@/lib/utils'
@@ -13,9 +14,19 @@ const units = ['Acres', 'Hectares']
 
 export default function ProfilePage() {
   const { theme, setTheme } = useTheme()
+  const { user, meta, updateMeta, signOut, ready } = useAuth()
   const [name, setName] = useState(farmer.name)
   const [phone, setPhone] = useState(farmer.phone)
   const [location, setLocation] = useState(farmer.location)
+  const [acctNote, setAcctNote] = useState<string | null>(null)
+  // hydrate from the real Supabase profile metadata once the session resolves
+  const [hydrated, setHydrated] = useState(false)
+  if (ready && user && !hydrated) {
+    setHydrated(true)
+    if (meta.full_name) setName(meta.full_name)
+    if (meta.mobile) setPhone(meta.mobile)
+    if (meta.location) setLocation(meta.location)
+  }
   const [lang, setLang] = useState('Tenglish')
   const [unit, setUnit] = useState('Acres')
   const [saved, setSaved] = useState(false)
@@ -27,9 +38,16 @@ export default function ProfilePage() {
   const acres = unit === 'Acres' ? farmer.totalAcres : farmer.totalAcres * 0.4047
   const upcoming = bookings.filter((b) => b.status === 'Confirmed' || b.status === 'Pending').length
 
-  const save = () => {
+  const save = async () => {
+    if (user) {
+      const res = await updateMeta({ full_name: name, mobile: phone, location })
+      setAcctNote(res.error ? `Could not save: ${res.error}` : 'Saved to your Supabase profile.')
+    } else {
+      setAcctNote('Saved in this browser only — sign in to sync your profile to your account.')
+    }
     setSaved(true)
     setTimeout(() => setSaved(false), 3000)
+    setTimeout(() => setAcctNote(null), 5000)
   }
 
   return (
@@ -38,8 +56,14 @@ export default function ProfilePage() {
         icon="👤"
         title="My Profile"
         sub="Account details, preferences and how you want to be reached."
-        tag={<DemoTag />}
+        tag={<span className="flex flex-wrap items-center gap-2">{user ? <Chip tone="live" icon="🔐">Signed in · {user.email}</Chip> : <Chip tone="demo" icon="◆">Explore mode — not signed in</Chip>}<DemoTag /></span>}
       />
+
+      {acctNote && (
+        <p className="mb-4 rounded-2xl border border-line/80 bg-surface px-4 py-3 text-xs font-semibold text-muted" role="status">
+          {acctNote}
+        </p>
+      )}
 
       <div className="grid gap-5 lg:grid-cols-[1fr_1.25fr]">
         {/* ------------------------------------------------- identity card */}
@@ -215,6 +239,33 @@ export default function ProfilePage() {
                     <span className="block text-[11px] text-muted">{t === 'light' ? 'Bright, high contrast' : 'Easy on the eyes at night'}</span>
                   </button>
                 ))}
+              </div>
+            </Card>
+          </Reveal>
+
+          <Reveal delay={0.15}>
+            <Card>
+              <h2 className="mb-1 text-base font-bold">Account</h2>
+              <p className="mb-4 text-xs text-muted">
+                {user
+                  ? 'Your profile is stored with your Supabase account. Signing out returns this browser to Explore mode.'
+                  : 'You are in Explore mode — data stays in this browser as labelled demo data.'}
+              </p>
+              <div className="flex flex-wrap gap-2.5">
+                {user ? (
+                  <button
+                    onClick={async () => { await signOut(); window.location.assign('/') }}
+                    className="btn btn-primary"
+                  >
+                    ↩︎ Sign out
+                  </button>
+                ) : (
+                  <>
+                    <Link href="/login" className="btn btn-primary">🔐 Login</Link>
+                    <Link href="/signup" className="btn btn-ghost">✨ Create account</Link>
+                  </>
+                )}
+                <Link href="/forgot-password" className="btn btn-quiet">Reset password</Link>
               </div>
             </Card>
           </Reveal>

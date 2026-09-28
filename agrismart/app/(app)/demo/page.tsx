@@ -85,7 +85,7 @@ const alsoWorth = [
   ['/planner', '🗓️', 'Crop Planner', 'Ranks crops against soil, water, season and budget.'],
   ['/weather', '🌦️', 'Weather & Alerts', 'Forecast plus what it means for spraying and irrigation.'],
   ['/marketplace', '🛒', 'Marketplace', 'Ten categories, with a three-step sell flow.'],
-  ['/vehicles', '🚜', 'Farm Vehicles', 'Buy with an EMI calculator, rent, or hire an operator.'],
+  ['/vehicles', '🚜', 'Farming Equipment', 'Buy with an EMI calculator, rent, or hire an operator.'],
   ['/aqua', '🐟', 'Aqua Farming', 'Ponds, DOC, survival, FCR and cost split.'],
   ['/poultry', '🐔', 'Poultry', 'Layer economics down to cost per egg.'],
   ['/dairy', '🐄', 'Dairy', 'Herd yield, cost per litre, margin per animal.'],

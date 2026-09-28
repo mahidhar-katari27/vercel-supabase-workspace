@@ -380,13 +380,60 @@ export const machines: Machine[] = [
 
 /* -------------------------------------------------------------- vehicles */
 
-export const vehicles = [
-  { id: 'v1', name: 'Mahindra 575 DI Tractor', type: 'Tractor', mode: 'Buy', price: 845000, location: 'Vijayawada', available: true, owner: 'Krishna Tractors', year: 2023, icon: '🚜' },
-  { id: 'v2', name: 'Sonalika 42 DI Tractor', type: 'Tractor', mode: 'Rent', price: 750, location: 'Gudivada', available: true, owner: 'Delta Agro', year: 2022, icon: '🚜' },
-  { id: 'v3', name: 'Ashok Leyland Dost Mini Truck', type: 'Mini truck', mode: 'Buy', price: 1180000, location: 'Vijayawada', available: true, owner: 'Leyland Dealers', year: 2024, icon: '🚚' },
-  { id: 'v4', name: 'Tractor Trailer (7 t)', type: 'Trailer', mode: 'Rent', price: 420, location: 'Nuzvid', available: false, owner: 'Srinivas Rao', year: 2021, icon: '🛞' },
-  { id: 'v5', name: 'Eicher Pro 2049 Farm Transport', type: 'Farm transport', mode: 'Buy', price: 2340000, location: 'Guntur', available: true, owner: 'Eicher Motors', year: 2025, icon: '🚛' },
-  { id: 'v6', name: 'Swaraj 855 XM Tractor', type: 'Tractor', mode: 'Buy', price: 920000, location: 'Tenali', available: true, owner: 'Swaraj Sales', year: 2024, icon: '🚜' },
+export type Vehicle = {
+  id: string
+  name: string
+  type: string
+  category: string
+  image: string
+  mode: 'Rent' | 'Buy'
+  price: number
+  location: string
+  available: boolean
+  owner: string
+  year: number
+  icon: string
+}
+
+export const equipmentCategories = [
+  { id: 'Tractors', image: '/equipment/tractors.jpg' },
+  { id: 'Harvesting', image: '/equipment/harvesting.jpg' },
+  { id: 'Tillage & Soil Preparation', image: '/equipment/tillage.jpg' },
+  { id: 'Irrigation & Spraying', image: '/equipment/irrigation.jpg' },
+  { id: 'Farm Transport', image: '/equipment/transport.jpg' },
+  { id: 'Other Equipment', image: '/equipment/other.jpg' },
+]
+
+export const vehicles: Vehicle[] = [
+  { id: 'v1', name: 'Mahindra 575 DI Tractor', type: 'Tractor', category: 'Tractors', image: '/equipment/tractors.jpg', mode: 'Buy', price: 845000, location: 'Vijayawada', available: true, owner: 'Krishna Tractors', year: 2023, icon: '🚜' },
+  { id: 'v2', name: 'Sonalika 42 DI Tractor', type: 'Tractor', category: 'Tractors', image: '/equipment/tractors.jpg', mode: 'Rent', price: 750, location: 'Gudivada', available: true, owner: 'Delta Agro', year: 2022, icon: '🚜' },
+  { id: 'v6', name: 'Swaraj 855 XM Tractor', type: 'Tractor', category: 'Tractors', image: '/equipment/tractors.jpg', mode: 'Buy', price: 920000, location: 'Tenali', available: true, owner: 'Swaraj Sales', year: 2024, icon: '🚜' },
+  { id: 'v7', name: 'Kubota MU4501 Mini Tractor', type: 'Mini tractor', category: 'Tractors', image: '/equipment/tractors.jpg', mode: 'Rent', price: 600, location: 'Nuzvid', available: true, owner: 'Delta Agro', year: 2023, icon: '🚜' },
+  { id: 'v8', name: 'VST Shakti 465 Power Tiller', type: 'Power tiller', category: 'Tractors', image: '/equipment/tractors.jpg', mode: 'Rent', price: 450, location: 'Machilipatnam', available: false, owner: 'Coastal Farm Services', year: 2021, icon: '🚜' },
+  { id: 'v9', name: 'Combine Harvester (Paddy)', type: 'Combine harvester', category: 'Harvesting', image: '/equipment/harvesting.jpg', mode: 'Rent', price: 2200, location: 'Vijayawada', available: true, owner: 'Krishna Harvest Co-op', year: 2023, icon: '🌾' },
+  { id: 'v10', name: 'Paddy Harvester Self-Propelled', type: 'Paddy harvester', category: 'Harvesting', image: '/equipment/harvesting.jpg', mode: 'Rent', price: 1800, location: 'Gudivada', available: true, owner: 'Delta Agro', year: 2022, icon: '🌾' },
+  { id: 'v11', name: 'Reaper Binder (Wheat/Paddy)', type: 'Reaper', category: 'Harvesting', image: '/equipment/harvesting.jpg', mode: 'Rent', price: 950, location: 'Nuzvid', available: true, owner: 'Srinivas Rao', year: 2021, icon: '🌾' },
+  { id: 'v12', name: 'Round Baler (Straw)', type: 'Baler', category: 'Harvesting', image: '/equipment/harvesting.jpg', mode: 'Rent', price: 1200, location: 'Guntur', available: false, owner: 'Guntur Farm Machinery', year: 2022, icon: '🎗' },
+  { id: 'v13', name: 'Thresher / Dal Mill Unit', type: 'Thresher', category: 'Harvesting', image: '/equipment/harvesting.jpg', mode: 'Rent', price: 700, location: 'Tenali', available: true, owner: 'Tenali Agri Works', year: 2020, icon: '⚙️' },
+  { id: 'v14', name: 'Sugarcane Harvester', type: 'Sugarcane harvester', category: 'Harvesting', image: '/equipment/harvesting.jpg', mode: 'Rent', price: 2600, location: 'West Godavari', available: true, owner: 'Godavari Agro Services', year: 2023, icon: '🎋' },
+  { id: 'v15', name: 'Rotavator 48-inch', type: 'Rotavator', category: 'Tillage & Soil Preparation', image: '/equipment/tillage.jpg', mode: 'Rent', price: 850, location: 'Vijayawada', available: true, owner: 'Krishna Tractors', year: 2022, icon: '' },
+  { id: 'v16', name: 'Cultivator 9-Tyne', type: 'Cultivator', category: 'Tillage & Soil Preparation', image: '/equipment/tillage.jpg', mode: 'Buy', price: 78000, location: 'Guntur', available: true, owner: 'Guntur Farm Machinery', year: 2024, icon: '🟤' },
+  { id: 'v17', name: 'MB Plough 3-Share', type: 'Plough', category: 'Tillage & Soil Preparation', image: '/equipment/tillage.jpg', mode: 'Buy', price: 62000, location: 'Nuzvid', available: true, owner: 'Nuzvid Agri Depot', year: 2023, icon: '🟤' },
+  { id: 'v18', name: 'Disc Harrow 16-Disc', type: 'Disc harrow', category: 'Tillage & Soil Preparation', image: '/equipment/tillage.jpg', mode: 'Rent', price: 600, location: 'Tenali', available: true, owner: 'Tenali Agri Works', year: 2021, icon: '🟤' },
+  { id: 'v19', name: 'Seed Drill (11-Row)', type: 'Seed drill', category: 'Tillage & Soil Preparation', image: '/equipment/tillage.jpg', mode: 'Rent', price: 750, location: 'Machilipatnam', available: false, owner: 'Coastal Farm Services', year: 2022, icon: '🌱' },
+  { id: 'v20', name: 'Water Tanker 4,000 L', type: 'Water tanker', category: 'Irrigation & Spraying', image: '/equipment/irrigation.jpg', mode: 'Rent', price: 1500, location: 'Vijayawada', available: true, owner: 'Delta Water Services', year: 2023, icon: '💧' },
+  { id: 'v21', name: 'Agricultural Sprayer (Boom)', type: 'Sprayer', category: 'Irrigation & Spraying', image: '/equipment/irrigation.jpg', mode: 'Rent', price: 400, location: 'Gudivada', available: true, owner: 'Delta Agro', year: 2022, icon: '💦' },
+  { id: 'v22', name: 'Drone Sprayer (10 L)', type: 'Drone sprayer', category: 'Irrigation & Spraying', image: '/equipment/irrigation.jpg', mode: 'Rent', price: 3200, location: 'Vijayawada', available: true, owner: 'AgriSky Drone Services', year: 2025, icon: '🛸' },
+  { id: 'v23', name: 'Irrigation Pump 5 HP', type: 'Irrigation pump', category: 'Irrigation & Spraying', image: '/equipment/irrigation.jpg', mode: 'Buy', price: 46000, location: 'Nuzvid', available: true, owner: 'Nuzvid Agri Depot', year: 2024, icon: '💧' },
+  { id: 'v3', name: 'Ashok Leyland Dost Mini Truck', type: 'Mini truck', category: 'Farm Transport', image: '/equipment/transport.jpg', mode: 'Buy', price: 1180000, location: 'Vijayawada', available: true, owner: 'Leyland Dealers', year: 2024, icon: '🚚' },
+  { id: 'v4', name: 'Tractor Trolley (7 t)', type: 'Tractor trolley', category: 'Farm Transport', image: '/equipment/transport.jpg', mode: 'Rent', price: 420, location: 'Nuzvid', available: false, owner: 'Srinivas Rao', year: 2021, icon: '🛞' },
+  { id: 'v24', name: 'Agricultural Trailer (3 t)', type: 'Trailer', category: 'Farm Transport', image: '/equipment/transport.jpg', mode: 'Buy', price: 96000, location: 'Tenali', available: true, owner: 'Tenali Agri Works', year: 2023, icon: '🛞' },
+  { id: 'v5', name: 'Eicher Pro 2049 Farm Transport', type: 'Farm transport', category: 'Farm Transport', image: '/equipment/transport.jpg', mode: 'Buy', price: 2340000, location: 'Guntur', available: true, owner: 'Eicher Motors', year: 2025, icon: '🚛' },
+  { id: 'v25', name: 'Paddy Transplanter (8-Row)', type: 'Transplanter', category: 'Other Equipment', image: '/equipment/other.jpg', mode: 'Rent', price: 1100, location: 'West Godavari', available: true, owner: 'Godavari Agro Services', year: 2023, icon: '🌱' },
+  { id: 'v26', name: 'Coconut Climbing Machine', type: 'Climbing aid', category: 'Other Equipment', image: '/equipment/other.jpg', mode: 'Rent', price: 500, location: 'East Godavari', available: true, owner: 'Coastal Farm Services', year: 2022, icon: '🥥' },
+  { id: 'v27', name: 'Mini Excavator (0.8 t)', type: 'Mini excavator', category: 'Other Equipment', image: '/equipment/other.jpg', mode: 'Rent', price: 4200, location: 'Visakhapatnam', available: true, owner: 'Vizag Earthworks', year: 2024, icon: '⛏' },
+  { id: 'v28', name: 'Chaff Cutter (Fodder)', type: 'Chaff cutter', category: 'Other Equipment', image: '/equipment/other.jpg', mode: 'Buy', price: 28000, location: 'Guntur', available: true, owner: 'Guntur Farm Machinery', year: 2023, icon: '🌿' },
+  { id: 'v29', name: 'Cono Weeder', type: 'Weeder', category: 'Other Equipment', image: '/equipment/other.jpg', mode: 'Buy', price: 3200, location: 'Nuzvid', available: true, owner: 'Nuzvid Agri Depot', year: 2024, icon: '🌿' },
 ]
 
 export const driverPool = [

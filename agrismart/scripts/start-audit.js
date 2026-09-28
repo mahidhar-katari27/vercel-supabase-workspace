@@ -29,7 +29,7 @@ function check(name, ok, extra = '') {
   const skip = page.locator('button:has-text("Skip")')
   if (await skip.first().isVisible({ timeout: 2000 }).catch(() => false)) await skip.first().click()
   await page.waitForTimeout(800)
-  check('hero headline', await page.locator('h1:has-text("Want to Start")').first().isVisible())
+  check('hero headline', await page.locator('h1:has-text("what to grow")').first().isVisible())
   check('hero img loaded', await page.locator('img[alt*="sunrise"]').first().evaluate((i) => i.complete && i.naturalWidth > 0).catch(() => false))
   check('floating cards', (await page.locator('text=Est. profit / acre').count()) >= 0 || true)
   check('explore button', await page.locator('button:has-text("Explore Crops")').first().isVisible())
@@ -62,7 +62,7 @@ function check(name, ok, extra = '') {
 
   /* ----------------------------------------------------- 3. analysing */
   await page.locator('button:has-text("Create My Farm Plan")').first().click()
-  await page.waitForSelector('text=Building your farm plan', { timeout: 4000 })
+  await page.waitForSelector('text=Analyzing your farm', { timeout: 4000 })
   check('analysis animation', await page.locator('text=Ranking crops by suitability').first().isVisible())
 
   /* ------------------------------------------------------- 4. results */
@@ -226,9 +226,49 @@ function check(name, ok, extra = '') {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(`${BASE}/start`, { waitUntil: 'networkidle' })
   await page.waitForTimeout(500)
-  check('mobile hero ok', await page.locator('h1:has-text("Want to Start")').first().isVisible())
+  check('mobile hero ok', await page.locator('h1:has-text("what to grow")').first().isVisible())
   check('mobile start in More sheet', (await page.locator('a[href="/start"]').count()) >= 1)
   await page.screenshot({ path: '/tmp/start-mobile.png', fullPage: false })
+
+  /* --------------------------------------- 16. auth + onboarding + equipment */
+  await page.setViewportSize({ width: 1440, height: 950 })
+  await page.goto(`${BASE}/login`, { waitUntil: 'networkidle' })
+  await page.waitForTimeout(600)
+  check('login page renders', await page.locator('h1:has-text("Welcome back")').first().isVisible())
+  await page.locator('button:has-text("Sign In")').first().click()
+  await page.waitForTimeout(400)
+  check('login validation blocks bad email', await page.locator('text=Enter a valid email address').first().isVisible())
+
+  await page.goto(`${BASE}/signup`, { waitUntil: 'networkidle' })
+  await page.waitForTimeout(600)
+  check('signup page renders', await page.locator('h1:has-text("get your farm started")').first().isVisible())
+
+  await page.goto(`${BASE}/forgot-password`, { waitUntil: 'networkidle' })
+  await page.waitForTimeout(500)
+  check('forgot password renders', await page.locator('h1:has-text("Forgot your password")').first().isVisible())
+
+  await page.goto(`${BASE}/onboarding`, { waitUntil: 'networkidle' })
+  await page.waitForTimeout(600)
+  check('onboarding gated when signed out', await page.locator('h1:has-text("Set up your farm")').first().isVisible())
+  await page.locator('button:has-text("Continue in Explore mode")').first().click()
+  await page.waitForTimeout(500)
+  check('onboarding explore step 1', await page.locator('h1:has-text("Where is your farm?")').first().isVisible())
+  check('onboarding progress 01/05', await page.locator('text=01 / 05').first().isVisible())
+
+  await page.goto(`${BASE}/vehicles`, { waitUntil: 'networkidle' })
+  await page.waitForTimeout(900)
+  check('equipment heading renamed', await page.locator('h1:has-text("Farming Equipment")').first().isVisible())
+  check('equipment catalog rich', (await page.locator('article').count()) >= 10)
+  await page.getByRole('tab', { name: /Rent/ }).first().click()
+  await page.waitForTimeout(400)
+  await page.getByRole('button', { name: 'Harvesting', exact: true }).click()
+  await page.waitForTimeout(500)
+  check('equipment category filter', (await page.locator('article').count()) >= 4)
+
+  await page.goto(`${BASE}/farm`, { waitUntil: 'networkidle' })
+  await page.waitForTimeout(900)
+  check('farm glance stats', await page.locator('text=Total Land').first().isVisible())
+  check('farm map visual', await page.locator('svg[aria-label="Farm plots, sized by acreage"]').first().isVisible())
 
   /* -------------------------------------------------------- summary */
   console.log(results.join('\n'))

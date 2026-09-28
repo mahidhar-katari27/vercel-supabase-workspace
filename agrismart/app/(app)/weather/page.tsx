@@ -12,6 +12,7 @@ import type { FarmPlan } from '@/lib/farmPlan'
 import { loadPlan, stageAt } from '@/lib/farmPlan'
 import { cropInfo } from '@/lib/cropDb'
 import { cn } from '@/lib/utils'
+import WeatherAtmosphere, { atmosphereFor } from '@/components/WeatherAtmosphere'
 
 const toneStyle: Record<Alert['tone'], { bar: string; chip: 'danger' | 'demo' | 'info' | 'live'; bg: string }> = {
   danger: { bar: '!border-l-red-500', chip: 'danger', bg: 'bg-red-500/10' },
@@ -42,6 +43,9 @@ export default function WeatherPage() {
 
   return (
     <div className="section">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-64" aria-hidden>
+        <WeatherAtmosphere kind={atmosphereFor(now.condition, now.temp)} className="rounded-none" />
+      </div>
       <PageHeader
         icon="🌦️"
         title="Weather & Farm Alerts"

@@ -10,9 +10,10 @@ import { cropDb, cropInfo, ecoTotal } from './cropDb'
 import { marketRows } from './data'
 import type { Land } from './data'
 import { farmer } from './data'
+import { sk } from './userScope'
 
-export const PLAN_KEY = 'agrismart-farm-plan'
-export const TASKS_KEY = 'agrismart-farm-tasks'
+const PLAN_BASE = 'farm-plan'
+const TASKS_BASE = 'farm-tasks'
 export const PLAN_EVENT = 'agrismart:plan-change'
 
 export const DISCLAIMER =
@@ -55,7 +56,7 @@ export const budgetPerAcre = (p: FarmPlan): number => {
 export function loadPlan(): FarmPlan | null {
   if (typeof window === 'undefined') return null
   try {
-    const raw = window.localStorage.getItem(PLAN_KEY)
+    const raw = window.localStorage.getItem(sk(PLAN_BASE))
     if (!raw) return null
     const plan = JSON.parse(raw) as FarmPlan
     if (!plan.plots?.length || !plan.chosenCrop === undefined) return plan
@@ -65,12 +66,12 @@ export function loadPlan(): FarmPlan | null {
 
 export function savePlan(plan: FarmPlan): void {
   if (typeof window === 'undefined') return
-  try { window.localStorage.setItem(PLAN_KEY, JSON.stringify(plan)); window.dispatchEvent(new Event(PLAN_EVENT)) } catch { /* private mode */ }
+  try { window.localStorage.setItem(sk(PLAN_BASE), JSON.stringify(plan)); window.dispatchEvent(new Event(PLAN_EVENT)) } catch { /* private mode */ }
 }
 
 export function clearPlan(): void {
   if (typeof window === 'undefined') return
-  try { window.localStorage.removeItem(PLAN_KEY); window.localStorage.removeItem(TASKS_KEY); window.dispatchEvent(new Event(PLAN_EVENT)) } catch { /* ignore */ }
+  try { window.localStorage.removeItem(sk(PLAN_BASE)); window.localStorage.removeItem(sk(TASKS_BASE)); window.dispatchEvent(new Event(PLAN_EVENT)) } catch { /* ignore */ }
 }
 
 export function onPlanChange(fn: () => void): () => void {
@@ -270,11 +271,11 @@ export type DoneMap = Record<string, Record<string, boolean>>
 
 export function loadDoneTasks(): DoneMap {
   if (typeof window === 'undefined') return {}
-  try { return JSON.parse(window.localStorage.getItem(TASKS_KEY) ?? '{}') as DoneMap } catch { return {} }
+  try { return JSON.parse(window.localStorage.getItem(sk(TASKS_BASE)) ?? '{}') as DoneMap } catch { return {} }
 }
 export function saveDoneTasks(done: DoneMap): void {
   if (typeof window === 'undefined') return
-  try { window.localStorage.setItem(TASKS_KEY, JSON.stringify(done)) } catch { /* ignore */ }
+  try { window.localStorage.setItem(sk(TASKS_BASE), JSON.stringify(done)) } catch { /* ignore */ }
 }
 export const todayKey = (): string => new Date().toISOString().slice(0, 10)
 

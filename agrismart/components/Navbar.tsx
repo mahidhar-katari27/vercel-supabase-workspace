@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useTheme } from './ThemeProvider'
+import { useAuth } from '@/lib/auth'
 import { navItems, mobileNav, allSections } from '@/lib/nav'
 import { notifications, farmer } from '@/lib/data'
 import { cn, timeAgo } from '@/lib/utils'
@@ -28,6 +29,8 @@ export default function Navbar() {
 
   useEffect(() => { setSheet(false); setBell(false); setProfile(false); setMore(false) }, [pathname])
 
+  const { user, meta, signOut } = useAuth()
+  const displayName = user ? (meta.full_name || user.email || 'Account') : farmer.name
   const unread = notifications.filter((n) => !n.read).length
 
   return (
@@ -131,9 +134,16 @@ export default function Navbar() {
 
             {/* Right cluster */}
             <div className="ml-auto flex items-center gap-1 lg:ml-0">
-              <Link href="/auth" className="btn-ghost mr-1 hidden !px-4 !py-2 text-xs xl:inline-flex">
-                Sign in
-              </Link>
+              {!user ? (
+                <div className="mr-1 hidden items-center gap-2 xl:flex">
+                  <Link href="/login" className="btn-ghost !px-4 !py-2 text-xs">Login</Link>
+                  <Link href="/signup" className="btn btn-primary !px-4 !py-2 text-xs">Create Account</Link>
+                </div>
+              ) : (
+                <span className="mr-1 hidden items-center gap-1.5 rounded-full border border-leaf-500/40 bg-leaf-500/10 px-3 py-1.5 text-[11px] font-bold text-leaf-700 dark:text-leaf-300 xl:inline-flex">
+                  <span aria-hidden>✓</span> {displayName.split(' ')[0]}
+                </span>
+              )}
               <ThemeToggle theme={theme} toggle={toggle} />
 
               <div className="relative">
@@ -180,15 +190,24 @@ export default function Navbar() {
                   className="tap-lg flex items-center gap-2 rounded-xl p-1 pr-2 transition-colors hover:bg-line/40"
                 >
                   <Avatar seed={farmer.avatarSeed} size={30} />
-                  <span className="hidden text-sm font-semibold xl:block">{farmer.name.split(' ')[0]}</span>
+                  <span className="hidden text-sm font-semibold xl:block">{displayName.split(' ')[0]}</span>
                   <span className="hidden text-[10px] text-faint xl:block" aria-hidden>▾</span>
                 </button>
                 <AnimatePresence>
                   {profile && (
-                    <Dropdown onClose={() => setProfile(false)} align="right" title={farmer.name}>
-                      <div className="mb-2 flex items-center gap-2 text-xs text-muted">
-                        <span className="chip chip-live">👨‍🌾 {farmer.role}</span>
-                        <span>{farmer.location.split(',')[0]}</span>
+                    <Dropdown onClose={() => setProfile(false)} align="right" title={displayName}>
+                      <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted">
+                        {user ? (
+                          <>
+                            <span className="chip chip-live">🔐 Signed in</span>
+                            <span className="truncate">{user.email}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="chip chip-demo">◆ Explore mode</span>
+                            <span>{farmer.location.split(',')[0]}</span>
+                          </>
+                        )}
                       </div>
                       <Link href="/profile" className="menu-link">👤 My profile</Link>
                       <Link href="/bookings" className="menu-link">📅 My bookings</Link>
@@ -201,7 +220,20 @@ export default function Navbar() {
                         🎬 Replay opening animation
                       </button>
                       <div className="my-1.5 hairline" />
-                      <Link href="/auth" className="menu-link">↩︎ Switch user / sign out</Link>
+                      {user ? (
+                        <button
+                          onClick={async () => { await signOut(); setProfile(false); window.location.assign('/') }}
+                          className="menu-link w-full text-left"
+                        >
+                          ↩︎ Sign out
+                        </button>
+                      ) : (
+                        <>
+                          <Link href="/login" className="menu-link">🔐 Login</Link>
+                          <Link href="/signup" className="menu-link">✨ Create account</Link>
+                          <Link href="/auth" className="menu-link">↩︎ Demo roles / explore</Link>
+                        </>
+                      )}
                     </Dropdown>
                   )}
                 </AnimatePresence>

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { loadPlan, onPlanChange, planLands } from '@/lib/farmPlan'
-import { Card, Chip, DemoTag, Modal, PageHeader, Progress, Reveal, spring } from '@/components/ui'
+import { Card, Chip, Counter, DemoTag, Modal, PageHeader, Progress, Reveal, spring } from '@/components/ui'
 import MapCanvas from '@/components/maps/MapCanvas'
 import LocationPickerModal from '@/components/maps/LocationPickerModal'
 import NearbyServices from '@/components/maps/NearbyServices'
@@ -17,8 +17,10 @@ import {
   farmer, irrigationTypes, lands, marketRows, schemes, soilTypes, weather, type Land,
 } from '@/lib/data'
 import { cn, inr } from '@/lib/utils'
+import { sk } from '@/lib/userScope'
+import { loadLands, saveLands, type LandsSource } from '@/lib/myFarm'
 
-const PHOTO_KEY = 'agrismart-land-photos'
+const PHOTO_BASE = 'land-photos'
 
 const emptyForm = {
   name: '', location: '', acres: '', soil: soilTypes[0]!, irrigation: irrigationTypes[0]!,
@@ -26,7 +28,11 @@ const emptyForm = {
 }
 
 export default function FarmPage() {
+  // SSR-safe: demo portfolio on first paint; the mount effect swaps in the
+  // signed-in user's private lands (or keeps demo for Explore mode).
   const [list, setList] = useState<Land[]>(lands)
+  const [source, setSource] = useState<LandsSource>('demo')
+  const [landsReady, setLandsReady] = useState(false)
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [formCrop, setFormCrop] = useState<CropKey>('paddy')
@@ -53,17 +59,24 @@ export default function FarmPage() {
   const set = (k: keyof typeof emptyForm, v: string) => setForm((f) => ({ ...f, [k]: v }))
 
   useEffect(() => {
+    const load = () => { const got = loadLands(); setList(got.list); setSource(got.source); setLandsReady(true) }
+    load()
+    window.addEventListener('agrismart:scope-change', load)
+    return () => window.removeEventListener('agrismart:scope-change', load)
+  }, [])
+
+  useEffect(() => {
     const p: Record<string, StoredLocation> = {}
     for (const l of list) { const got = getFarmLocation(l.id); if (got) p[l.id] = got }
     setPins(p)
-    try { setPhotos(JSON.parse(window.localStorage.getItem(PHOTO_KEY) ?? '{}')) } catch { /* ignore */ }
+    try { setPhotos(JSON.parse(window.localStorage.getItem(sk(PHOTO_BASE)) ?? '{}')) } catch { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const persistPhoto = (id: string, dataUrl: string) => {
     setPhotos((prev) => {
       const next = { ...prev, [id]: dataUrl }
-      try { window.localStorage.setItem(PHOTO_KEY, JSON.stringify(next)) } catch {
+      try { window.localStorage.setItem(sk(PHOTO_BASE), JSON.stringify(next)) } catch {
         /* quota — keep in memory for this session only */
       }
       return next
@@ -103,7 +116,8 @@ export default function FarmPage() {
     const id = `land-${String(list.length + 1).padStart(2, '0')}`
     const cropKey = cropKeyForName(form.crop)
     const base = formLoc ? { lat: formLoc.lat, lng: formLoc.lng } : farmer.coords
-    setList((prev) => [
+    setList((prev) => {
+      const next = [
       ...prev,
       {
         id, name: form.name.trim(), location: form.location.trim(), acres,
@@ -113,7 +127,10 @@ export default function FarmPage() {
         coords: base,
         cropKey, harvestDays: 120, investment: 0, revenue: 0, profit: 0,
       },
-    ])
+      ]
+      saveLands(next)
+      return next
+    })
     if (formPhoto) persistPhoto(id, formPhoto)
     if (formLoc) setFarmLocation(id, { ...formLoc, savedAt: new Date().toISOString() })
     setForm(emptyForm); setFormPhoto(null); setFormLoc(null); setOpen(false)
@@ -147,6 +164,85 @@ export default function FarmPage() {
           <Link href="/finance" className="btn btn-quiet">💰 Farm Finance</Link>
         </div>
       </PageHeader>
+
+      {/* --------------------------------------------- farm at a glance */}
+      <div className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-line/60 bg-line/60 md:grid-cols-4">
+        {[
+          { icon: '🗺', label: 'Total Land', node: <><Counter to={totalAcres} decimals={1} suffix=" ac" /></> },
+          { icon: '🌱', label: 'Active Crops', node: <><Counter to={new Set(all.map((l) => l.crop)).size} /></> },
+          { icon: '💰', label: 'Investment', node: <Counter to={all.reduce((a, l) => a + (l.investment ?? 0), 0)} compact /> },
+          { icon: '📈', label: 'Est. Revenue', node: <Counter to={all.reduce((a, l) => a + (l.revenue ?? 0), 0)} compact /> },
+        ].map((st) => (
+          <div key={st.label} className="bg-surface p-5">
+            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-faint">
+              <span aria-hidden>{st.icon}</span>{st.label}
+            </p>
+            <p className="mt-2 font-display text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl">{st.node}</p>
+          </div>
+        ))}
+      </div>
+      <p className="-mt-4 mb-8 text-right text-[10px] text-faint">Financial figures are estimates from the sample dataset <DemoTag /></p>
+
+      {/* ------------------------------------------------- farm map visual */}
+      {all.length > 0 ? (
+        <Reveal>
+          <div className="relative mb-10 overflow-hidden rounded-4xl border border-line/60 bg-leaf-500/5 p-5 sm:p-7">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-display text-lg font-semibold tracking-tight">Your farm map</h2>
+              <span className="text-[11px] text-faint">Plot areas are proportional to acreage — tap a plot for its overview</span>
+            </div>
+            <motion.div initial={{ scale: 1.1 }} animate={{ scale: 1 }} transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}>
+              <svg viewBox="0 0 800 240" className="w-full" role="img" aria-label="Farm plots, sized by acreage">
+                {(() => {
+                  let x = 10
+                  const gap = 10
+                  const usable = 780 - gap * (all.length - 1)
+                  return all.map((l, i) => {
+                    const w = Math.max(70, (l.acres / (totalAcres || 1)) * usable)
+                    const px = x
+                    x += w + gap
+                    const on = l.id === (dashboard ?? all[0]!.id)
+                    const img = `/crops/${l.cropKey}.jpg`
+                    return (
+                      <g key={l.id} onClick={() => setDashboard(l.id)} className="cursor-pointer" role="button" aria-label={`${l.name} — ${l.crop}, ${l.acres} acres`}>
+                        <clipPath id={`clip-${l.id}`}><rect x={px} y={20} width={w} height={170} rx={18} /></clipPath>
+                        <motion.image
+                          href={img} x={px} y={20} width={w} height={170} preserveAspectRatio="xMidYMid slice"
+                          clipPath={`url(#clip-${l.id})`}
+                          initial={{ opacity: 0 }} animate={{ opacity: on ? 0.95 : 0.55 }} transition={{ delay: 0.3 + i * 0.25, duration: 0.7 }}
+                        />
+                        <motion.rect
+                          x={px} y={20} width={w} height={170} rx={18} fill="none"
+                          stroke={on ? 'hsl(var(--leaf-500))' : 'hsl(var(--ink) / 0.35)'} strokeWidth={on ? 3 : 1.4}
+                          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.1, delay: 0.2 + i * 0.25, ease: 'easeInOut' }}
+                        />
+                        <text x={px + 12} y={212} className="fill-current text-[13px] font-bold" fill="currentColor">
+                          {l.crop} — {l.acres} ac
+                        </text>
+                        <text x={px + 12} y={228} fill="currentColor" opacity={0.55} className="text-[11px]">
+                          {l.name}
+                        </text>
+                      </g>
+                    )
+                  })
+                })()}
+              </svg>
+            </motion.div>
+          </div>
+        </Reveal>
+      ) : (
+        <Card className="mb-10 grid place-items-center py-16 text-center">
+          <p className="text-4xl" aria-hidden>🌾</p>
+          <h2 className="mt-3 font-display text-xl font-semibold">Your farm hasn&rsquo;t been added yet.</h2>
+          <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted">
+            Add your first land — or run the two-minute onboarding — and AgriSmart builds your private farm profile.
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <button onClick={() => setOpen(true)} className="btn btn-primary btn-lg">+ Add My Farm</button>
+            <Link href="/onboarding" className="btn btn-ghost btn-lg">Run onboarding</Link>
+          </div>
+        </Card>
+      )}
 
       {/* ------------------------------------------------------- my lands */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">

@@ -345,10 +345,12 @@ const CHECKS = [
 
 export function Analyzing({ onDone, place }: { onDone: () => void; place?: string }) {
   const [n, setN] = useState(0)
+  const [ready, setReady] = useState(false)
   useEffect(() => {
     if (n >= CHECKS.length) {
-      const t = setTimeout(onDone, 700)
-      return () => clearTimeout(t)
+      const t = setTimeout(() => setReady(true), 350)
+      const t2 = setTimeout(onDone, 1500)
+      return () => { clearTimeout(t); clearTimeout(t2) }
     }
     const t = setTimeout(() => setN((v) => v + 1), n === 0 ? 250 : 480 + Math.random() * 220)
     return () => clearTimeout(t)
@@ -356,10 +358,37 @@ export function Analyzing({ onDone, place }: { onDone: () => void; place?: strin
 
   return (
     <div className="mx-auto max-w-xl pb-20 pt-10 text-center">
-      <motion.div animate={{ rotate: [0, 6, -6, 0] }} transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }} className="mb-4 text-6xl" aria-hidden>
-        🌱
-      </motion.div>
-      <h2 className="text-2xl font-bold">Building your farm plan…</h2>
+      {/* convergence visual: farm map + weather + crops + charts + data lines */}
+      <div className="relative mx-auto mb-6 h-40 w-full max-w-md overflow-hidden rounded-3xl border border-line/60 bg-surface-2/50 dark:bg-black/20" aria-hidden>
+        <svg viewBox="0 0 400 160" className="absolute inset-0 h-full w-full">
+          {/* field boundaries drawing themselves */}
+          <motion.path d="M40 120 L120 40 L210 55 L180 130 Z" fill="none" stroke="var(--color-leaf-500, #354A29)" strokeWidth="1.6"
+            initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.6, ease: 'easeInOut' }} />
+          <motion.path d="M210 55 L300 35 L350 100 L250 125 L180 130" fill="none" stroke="var(--color-leaf-400, #818B54)" strokeWidth="1.4"
+            initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.6, delay: 0.4, ease: 'easeInOut' }} />
+          {/* data lines converging to centre */}
+          {[[-10, 20], [410, 30], [-10, 140], [410, 130]].map(([x, y], i) => (
+            <motion.line key={i} x1={x} y1={y} x2={200} y2={80} stroke="var(--color-gold-400, #C0562A)" strokeWidth="0.8" strokeDasharray="3 4"
+              initial={{ opacity: 0 }} animate={{ opacity: [0, 0.8, 0.2] }} transition={{ duration: 1.4, delay: 0.6 + i * 0.25, repeat: Infinity }} />
+          ))}
+          {/* mini chart */}
+          <motion.polyline points="250,110 270,96 290,102 310,80 330,86 350,66" fill="none" stroke="var(--color-leaf-500, #354A29)" strokeWidth="2"
+            initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, delay: 1 }} />
+        </svg>
+        <motion.span initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+          className="absolute left-3 top-3 rounded-full bg-black/35 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">🌦 28°C · 62% rain chance</motion.span>
+        <motion.span initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
+          className="absolute right-3 top-3 flex gap-1 rounded-full bg-black/35 px-2.5 py-1 text-[11px] backdrop-blur-sm" >🌾 🌶 🌽</motion.span>
+        <motion.span initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 1.4, type: 'spring' }}
+          className="absolute left-1/2 top-1/2 grid h-9 w-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-leaf-gradient text-base shadow-glow">🌱</motion.span>
+      </div>
+      {ready ? (
+        <motion.h2 initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={spring} className="font-display text-3xl font-semibold tracking-tight">
+          Your Farm Plan is Ready.
+        </motion.h2>
+      ) : (
+        <h2 className="text-2xl font-bold">Analyzing your farm…</h2>
+      )}
       <p className="mt-1 text-sm text-muted">{place ? `Analysing conditions around ${place}` : 'Analysing your inputs'}</p>
       <div className="mx-auto mt-6 max-w-md space-y-2 text-left">
         {CHECKS.map((c, i) => (

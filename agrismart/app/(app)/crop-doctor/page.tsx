@@ -10,6 +10,7 @@ import { analysisSteps, lands, type Diagnosis } from '@/lib/data'
 import { loadPlan, onPlanChange, planLands } from '@/lib/farmPlan'
 import { analyseCrop, doctorDisclaimer, doctorSuggestions } from '@/lib/ai'
 import { sampleLeaves } from '@/lib/samples'
+import { sk } from '@/lib/userScope'
 import { cn } from '@/lib/utils'
 
 type Stage = 'idle' | 'analysing' | 'done'
@@ -66,8 +67,8 @@ export default function CropDoctorPage() {
         ...lands.map((l) => ({ id: l.id, label: `${l.name} · ${l.crop}`, plan: false })),
       ]
       setLandOpts(opts)
-      setLandId((cur) => cur || window.localStorage.getItem('agrismart-doctor-land') || opts[0]?.id || '')
-      try { setDxHistory(JSON.parse(window.localStorage.getItem('agrismart-doctor-history') ?? '[]')) } catch { /* ignore */ }
+      setLandId((cur) => cur || window.localStorage.getItem(sk('doctor-land')) || opts[0]?.id || '')
+      try { setDxHistory(JSON.parse(window.localStorage.getItem(sk('doctor-history')) ?? '[]')) } catch { /* ignore */ }
     }
     sync()
     return onPlanChange(sync)
@@ -81,7 +82,7 @@ export default function CropDoctorPage() {
     const entry = { id: `dx-${Date.now()}`, landId, date: new Date().toISOString(), issue: result.issue, risk: result.risk, confidence: result.confidence }
     setDxHistory((h) => {
       const next = [entry, ...h].slice(0, 20)
-      try { window.localStorage.setItem('agrismart-doctor-history', JSON.stringify(next)) } catch { /* ignore */ }
+      try { window.localStorage.setItem(sk('doctor-history'), JSON.stringify(next)) } catch { /* ignore */ }
       return next
     })
   }, [stage, result, landId, img])
@@ -149,7 +150,7 @@ export default function CropDoctorPage() {
             <span className="text-xs font-bold uppercase tracking-wider text-muted">🌍 Diagnosing land</span>
             <select
               value={landId}
-              onChange={(e) => { setLandId(e.target.value); try { window.localStorage.setItem('agrismart-doctor-land', e.target.value) } catch { /* ignore */ } }}
+              onChange={(e) => { setLandId(e.target.value); try { window.localStorage.setItem(sk('doctor-land'), e.target.value) } catch { /* ignore */ } }}
               className="rounded-xl border border-line/70 bg-surface-2/60 px-3 py-2 text-sm font-semibold outline-none focus:border-leaf-400/70 dark:bg-black/20"
               aria-label="Select the land this diagnosis is for"
             >
@@ -226,8 +227,32 @@ export default function CropDoctorPage() {
                       <img src={img.src} alt={`Uploaded crop sample: ${img.caption ?? img.name}`}
                         className="h-full w-full object-cover" />
                       {stage === 'analysing' && (
-                        <motion.div className="absolute inset-0 rounded-3xl border-2 border-leaf-400/70"
-                          animate={{ opacity: [0.35, 1, 0.35] }} transition={{ duration: 1.2, repeat: Infinity }} />
+                        <>
+                          {/* subtle scanning line sweeping the sample */}
+                          <motion.div
+                            className="absolute inset-x-0 h-10 bg-gradient-to-b from-transparent via-leaf-400/45 to-transparent"
+                            initial={{ y: -40 }} animate={{ y: 300 }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                            aria-hidden
+                          />
+                          <motion.div
+                            className="absolute inset-0 bg-leaf-400/10"
+                            animate={{ opacity: [0.15, 0.4, 0.15] }} transition={{ duration: 1.5, repeat: Infinity }}
+                            aria-hidden
+                          />
+                          <div className="absolute inset-x-0 top-2 flex justify-center gap-1.5" aria-hidden>
+                            {['AI scan', 'Analysis', 'Problem', 'Risk', 'Action'].map((t, i) => (
+                              <motion.span
+                                key={t}
+                                initial={{ opacity: 0.25 }}
+                                animate={{ opacity: [0.25, 1, 0.55] }}
+                                transition={{ duration: 2.4, delay: i * 0.45, repeat: Infinity }}
+                                className="rounded-full bg-black/45 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white/85 backdrop-blur-sm"
+                              >
+                                {t}
+                              </motion.span>
+                            ))}
+                          </div>
+                        </>
                       )}
                       {stage === 'done' && result && (
                         <motion.div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3"

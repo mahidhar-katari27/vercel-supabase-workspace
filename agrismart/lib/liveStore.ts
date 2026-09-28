@@ -12,18 +12,19 @@
  */
 import { supabaseBrowser, isMissingTable } from './supabase'
 import type { Booking } from './data'
+import { sk } from './userScope'
 
-const LS_KEY = 'agrismart-local-bookings'
+const LS_BASE = 'local-bookings'
 
 export type BookingSource = 'live' | 'local' | 'none'
 
 function readLocal(): Booking[] {
   if (typeof window === 'undefined') return []
-  try { return JSON.parse(window.localStorage.getItem(LS_KEY) ?? '[]') } catch { return [] }
+  try { return JSON.parse(window.localStorage.getItem(sk(LS_BASE)) ?? '[]') } catch { return [] }
 }
 
 function writeLocal(rows: Booking[]) {
-  try { window.localStorage.setItem(LS_KEY, JSON.stringify(rows.slice(0, 50))) } catch { /* private mode */ }
+  try { window.localStorage.setItem(sk(LS_BASE), JSON.stringify(rows.slice(0, 50))) } catch { /* private mode */ }
 }
 
 /** Is the real Postgres table there yet? Cached per session. */

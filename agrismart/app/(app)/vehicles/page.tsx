@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Card, Chip, DemoTag, Modal, PageHeader, Reveal, spring, Tabs } from '@/components/ui'
-import { driverPool, farmer, vehicles } from '@/lib/data'
+import { driverPool, equipmentCategories, farmer, vehicles, type Vehicle } from '@/lib/data'
+import { addBooking } from '@/lib/liveStore'
+import Image from 'next/image'
 import { cn, inr, num } from '@/lib/utils'
 
 const TABS = [
@@ -29,8 +31,33 @@ export default function VehiclesPage() {
   const [bookDriver, setBookDriver] = useState<(typeof driverPool)[number] | null>(null)
   const [days, setDays] = useState(1)
   const [toast, setToast] = useState<string | null>(null)
+  const [cat, setCat] = useState('All')
+  const [q, setQ] = useState('')
+  const [sort, setSort] = useState<'price-asc' | 'price-desc' | 'name'>('price-asc')
 
-  const list = vehicles.filter((v) => (tab === 'rent' ? v.mode === 'Rent' : v.mode === 'Buy'))
+  const list = vehicles
+    .filter((v) => (tab === 'rent' ? v.mode === 'Rent' : v.mode === 'Buy'))
+    .filter((v) => cat === 'All' || v.category === cat)
+    .filter((v) => !q.trim() || (v.name + v.type + v.location + v.owner).toLowerCase().includes(q.trim().toLowerCase()))
+    .sort((a, b) => sort === 'name' ? a.name.localeCompare(b.name) : sort === 'price-desc' ? b.price - a.price : a.price - b.price)
+
+  const bookNow = async (v: Vehicle) => {
+    const src = await addBooking({
+      id: `bk-${Date.now().toString(36)}`, service: `${v.mode} — ${v.name}`, icon: v.icon || '🚜',
+      provider: v.owner, date: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+      time: '09:00', status: 'Pending', amount: v.price, driver: false,
+    })
+    say(src === 'live' ? `Booking request sent to Supabase — ${v.name}` : `Booking request saved locally (demo) — ${v.name}. View it under Bookings.`)
+  }
+
+  const contactOwner = async (v: Vehicle) => {
+    const src = await addBooking({
+      id: `bk-${Date.now().toString(36)}`, service: `Contact request — ${v.name}`, icon: '📞',
+      provider: v.owner, date: new Date().toISOString().slice(0, 10),
+      time: '10:00', status: 'Pending', amount: 0, driver: false,
+    })
+    say(src === 'live' ? `We logged your call-back request for ${v.owner}` : `Call-back request logged (demo) — ${v.owner} will be shown under Bookings.`)
+  }
 
   const price = detail?.price ?? 0
   const downPct = parseFloat(down) || 0
@@ -44,8 +71,8 @@ export default function VehiclesPage() {
     <div className="section">
       <PageHeader
         icon="🚜"
-        title="Farm Vehicles"
-        sub="Buy outright, rent by the day, or hire an operator for the job."
+        title="Farming Equipment"
+        sub="Tractors, harvesting, tillage, irrigation, transport and more — rent by the day or buy with illustrative EMI maths."
         tag={<DemoTag />}
       >
         <Tabs tabs={TABS} active={tab} onChange={setTab} className="max-w-md" />
@@ -57,20 +84,61 @@ export default function VehiclesPage() {
         needs a dealer quotation, on-road cost, insurance and a lender&rsquo;s sanction letter.
       </div>
 
+      {/* --------------------------------------------------- filter bar */}
+      {tab !== 'driver' && (
+        <div className="mb-6 space-y-3">
+          <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+            {['All', ...equipmentCategories.map((c) => c.id)].map((c) => (
+              <button
+                key={c} onClick={() => setCat(c)} aria-pressed={cat === c}
+                className={cn(
+                  'shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-all',
+                  cat === c ? 'border-ink bg-ink text-bg' : 'border-line/80 bg-surface text-muted hover:border-line',
+                )}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search machine, provider or town…"
+              aria-label="Search equipment"
+              className="flex-1 rounded-2xl border border-line/80 bg-surface px-4 py-2.5 text-sm outline-none transition-all focus:border-leaf-500/60 focus:ring-4 focus:ring-leaf-500/10"
+            />
+            <select
+              value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} aria-label="Sort equipment"
+              className="rounded-2xl border border-line/80 bg-surface px-4 py-2.5 text-sm outline-none focus:border-leaf-500/60"
+            >
+              <option value="price-asc">Price · low → high</option>
+              <option value="price-desc">Price · high → low</option>
+              <option value="name">Name · A → Z</option>
+            </select>
+          </div>
+        </div>
+      )}
+
       {/* --------------------------------------------------- buy / rent grid */}
       {tab !== 'driver' && (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {list.map((v, i) => (
-            <Reveal key={v.id} delay={i * 0.06}>
-              <motion.article className="card card-hover flex h-full flex-col !p-0" whileHover={{ y: -3 }}>
-                <div className="relative h-28 overflow-hidden rounded-t-[26px]">
-                  <VehicleArt type={v.type} />
-                  <span className="absolute left-2.5 top-2.5 rounded-full bg-surface/90 px-2 py-0.5 text-[10px] font-black text-muted backdrop-blur-sm">
-                    {v.type}
+            <Reveal key={v.id} delay={Math.min(i, 8) * 0.05}>
+              <motion.article className="group card card-hover flex h-full flex-col !p-0 overflow-hidden" whileHover={{ y: -4 }}>
+                <div className="relative h-40 overflow-hidden">
+                  <Image
+                    src={v.image} alt={v.name} fill sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" aria-hidden />
+                  <span className="absolute left-3 top-3 rounded-full bg-black/40 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur-sm">
+                    {v.category}
                   </span>
-                  <Chip tone={v.available ? 'live' : 'demo'} className="absolute right-2.5 top-2.5">
+                  <Chip tone={v.available ? 'live' : 'demo'} className="absolute right-3 top-3">
                     {v.available ? 'Available' : 'On order'}
                   </Chip>
+                  <span className="absolute bottom-3 left-3 text-[11px] font-semibold text-white/85">
+                    {v.mode === 'Rent' ? 'Rent / day' : 'Buy'} · {v.type}
+                  </span>
                 </div>
 
                 <div className="flex flex-1 flex-col p-5">
@@ -95,20 +163,12 @@ export default function VehiclesPage() {
                     )}
                   </div>
 
-                  <div className="mt-4 flex gap-2">
-                    {v.mode === 'Buy' ? (
-                      <>
-                        <button onClick={() => setDetail(v)} className="btn btn-primary btn-sm flex-1">EMI &amp; details</button>
-                        <Link href="/finance" className="btn btn-quiet btn-sm">💰</Link>
-                      </>
-                    ) : (
-                      <>
-                        <button onClick={() => setDetail(v)} className="btn btn-primary btn-sm flex-1" disabled={!v.available}>
-                          {v.available ? 'Rent this' : 'Unavailable'}
-                        </button>
-                        <Link href="/agrirent" className="btn btn-quiet btn-sm">AgriRent</Link>
-                      </>
-                    )}
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button onClick={() => setDetail(v)} className="btn btn-ghost btn-sm">View Details</button>
+                    <button onClick={() => bookNow(v)} className="btn btn-primary btn-sm" disabled={!v.available}>
+                      {v.available ? 'Book Now' : 'Unavailable'}
+                    </button>
+                    <button onClick={() => contactOwner(v)} className="btn btn-quiet btn-sm col-span-2">📞 Contact Owner</button>
                   </div>
                 </div>
               </motion.article>

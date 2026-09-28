@@ -122,12 +122,13 @@ function Hero({ plan, onStart, onExplore, onOpenPlan }: { plan: FarmPlan | null;
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
               <Chip tone="live" icon="🌱" className="mb-4">New · Start Farming</Chip>
               <h1 className="font-display text-4xl font-black leading-[1.05] text-white sm:text-5xl lg:text-[3.4rem]">
-                Want to Start<br />Farming? <span className="text-leaf-300">We&rsquo;ll plan it with you.</span>
+                Not sure<br />what to grow?
               </h1>
               <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
-                Answer 7 simple questions — location, land, soil, water, budget, goals and start date.
-                AgriSmart checks live weather, sowing windows, costs and mandi prices, then builds your
-                complete farm plan: which crop, why, how much it costs, what you could earn, and what to do every day.
+                Tell us about your land. We&rsquo;ll help you plan your first crop — answer 7 simple
+                questions (location, land, soil, water, budget, goals, season) and AgriSmart checks live
+                weather, sowing windows, costs and mandi prices, then builds your complete farm plan:
+                which crop, why, what it costs, what you could earn, and what to do every day.
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <button type="button" className="btn-primary" onClick={onStart}>🌱 Create My Farm Plan</button>

@@ -17,6 +17,7 @@ import {
 } from '@/lib/farmPlan'
 import { cropVisual } from '@/lib/cropDb'
 import { useEffect, useState } from 'react'
+import WeatherAtmosphere, { atmosphereFor } from '@/components/WeatherAtmosphere'
 
 const QUICK = [
   { href: '/start', icon: '🌱', label: 'Start Farming' },
@@ -101,8 +102,9 @@ export default function DashboardPage() {
       {/* -------------------------------------------------- weather + alerts */}
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <Reveal className="lg:col-span-1">
-          <Card className="h-full">
-            <div className="mb-4 flex items-start justify-between gap-2">
+          <Card className="relative h-full overflow-hidden">
+            <WeatherAtmosphere kind={atmosphereFor(weather.now.condition, weather.now.temp)} />
+            <div className="relative mb-4 flex items-start justify-between gap-2">
               <div>
                 <h2 className="text-base font-bold">Today&rsquo;s weather</h2>
                 <p className="text-xs text-muted">{farmer.location.split(',')[0]}</p>

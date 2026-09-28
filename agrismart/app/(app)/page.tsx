@@ -59,17 +59,17 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.06 }}
             className="mx-auto max-w-4xl font-display text-[2.9rem] font-semibold leading-[1.02] tracking-[-0.03em] sm:text-6xl lg:text-[4.6rem]"
           >
-            From Land To
+            Agriculture,
             <br />
-            Better Decisions.
+            Made Smarter.
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.14 }}
             className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-muted sm:text-base"
           >
-            One intelligent platform for crop health, farm finances, markets,
-            government schemes and agricultural services — in English, Telugu and Tenglish.
+            Plan your farm, understand your crops, track your money,
+            and make better farming decisions.
           </motion.p>
 
           <motion.div
@@ -77,10 +77,10 @@ export default function LandingPage() {
             className="mt-8 flex flex-wrap items-center justify-center gap-3"
           >
             <Link href="/start" className="btn btn-primary btn-lg group">
-              Get Started
+              <span aria-hidden>🌱</span> Start Farming
               <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden>→</span>
             </Link>
-            <Link href="/dashboard" className="btn btn-ghost btn-lg">Open dashboard</Link>
+            <Link href="/dashboard" className="btn btn-ghost btn-lg">Explore AgriSmart</Link>
             <Link href="/crop-doctor" className="btn btn-quiet btn-lg"><span aria-hidden>🤖</span> AI Crop Doctor</Link>
           </motion.div>
           <motion.p
@@ -98,6 +98,34 @@ export default function LandingPage() {
         >
           <Image src="/start/hero.jpg" alt="Farmer walking a young field at sunrise" fill priority sizes="100vw" className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" aria-hidden />
+          {/* progressive live-looking data rail — WEATHER → CROP → WATER → MARKET */}
+          <div className="absolute left-5 top-1/2 hidden -translate-y-1/2 sm:block" aria-hidden={false}>
+            <div className="relative flex flex-col gap-3">
+              <span className="absolute bottom-4 left-[13px] top-4 w-px bg-white/25" aria-hidden />
+              {[
+                ['WEATHER', '🌦', '28°C', 'Partly cloudy · Vijayawada'],
+                ['CROP', '🌾', 'Paddy', 'Vegetative stage · day 68'],
+                ['WATER', '💧', 'Soil moisture 64%', 'Borewell + rainfed'],
+                ['MARKET', '₹', '₹48,500 est. return', 'Sample estimate only'],
+              ].map(([tag, icon, val, sub], i) => (
+                <motion.div
+                  key={tag}
+                  initial={{ opacity: 0, x: -14 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ ...spring, delay: 0.25 + i * 0.35 }}
+                  className="relative flex items-center gap-3 rounded-2xl border border-white/15 bg-black/35 px-3.5 py-2.5 backdrop-blur-md"
+                >
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/12 text-sm" aria-hidden>{icon}</span>
+                  <span>
+                    <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/60">{tag}</span>
+                    <span className="block text-sm font-bold leading-tight text-white">{val}</span>
+                    <span className="block text-[10px] text-white/60">{sub}</span>
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
           <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-3 p-6 sm:p-10">
             <p className="max-w-sm font-display text-2xl font-semibold leading-tight text-white sm:text-3xl">
               The journey from soil to sale — in one picture.
