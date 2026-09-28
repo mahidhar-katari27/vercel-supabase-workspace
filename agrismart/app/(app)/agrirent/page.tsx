@@ -9,6 +9,7 @@ import { cn, inr } from '@/lib/utils'
 import { placeForRef } from '@/lib/places'
 import { directionsUrl, formatKm, haversineKm } from '@/lib/geo'
 import NearbyServices from '@/components/maps/NearbyServices'
+import { addBooking, type BookingSource } from '@/lib/liveStore'
 
 const STEPS = ['Machine', 'Date', 'Time', 'Location', 'Operator', 'Confirm']
 
@@ -34,6 +35,7 @@ export default function AgriRentPage() {
   const [mode, setMode] = useState<DriverMode>('with')
   const [driverId, setDriverId] = useState<string | null>(null)
   const [placed, setPlaced] = useState<string | null>(null)
+  const [saveNote, setSaveNote] = useState<BookingSource | null>(null)
 
   const machine: Machine | undefined = machines.find((m) => m.id === machineId)
   const driver = driverPool.find((d) => d.id === driverId)
@@ -365,7 +367,17 @@ export default function AgriRentPage() {
                   payment is processed. The total is assembled from sample rates in this prototype&rsquo;s data.
                 </p>
 
-                <button onClick={() => setPlaced(`AGR-${Date.now().toString().slice(-6)}`)} className="btn btn-primary mt-5 w-full">
+                <button onClick={() => {
+                  const id = `AGR-${Date.now().toString().slice(-6)}`
+                  setPlaced(id)
+                  if (machine && quote) {
+                    void addBooking({
+                      id, service: machine.name, icon: machine.icon, provider: machine.owner,
+                      date, time: slot ?? '—', status: 'Pending', amount: quote.total,
+                      land: location.trim() || undefined, driver: mode === 'with' && !!driver,
+                    }).then(setSaveNote)
+                  }
+                }} className="btn btn-primary mt-5 w-full">
                   Place demo booking
                 </button>
               </Panel>
@@ -381,6 +393,16 @@ export default function AgriRentPage() {
                   ✓
                 </motion.div>
                 <h2 className="mt-5 font-display text-2xl font-black">Demo booking placed</h2>
+                {saveNote === 'live' && (
+                  <p className="mt-2 rounded-2xl border border-leaf-500/40 bg-leaf-50 px-3 py-2 text-xs font-bold text-leaf-700">
+                    🔌 Saved to your Supabase project (bookings table)
+                  </p>
+                )}
+                {saveNote === 'local' && (
+                  <p className="mt-2 rounded-2xl border border-line/60 bg-line/20 px-3 py-2 text-xs font-semibold text-muted">
+                    💾 Saved in this browser — the Supabase bookings table doesn't exist yet (migration 0001 pending)
+                  </p>
+                )}
                 <p className="mt-1 text-sm text-muted">
                   Reference <span className="font-mono font-bold text-ink">{placed}</span>
                 </p>

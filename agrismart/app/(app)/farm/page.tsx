@@ -63,8 +63,20 @@ export default function FarmPage() {
   const onUpload = (file: File | undefined, target: 'form' | string) => {
     if (!file) return
     const reader = new FileReader()
-    reader.onload = () => {
-      const url = String(reader.result)
+    reader.onload = async () => {
+      let url = String(reader.result)
+      // Prefer Supabase Storage (service-key upload via our route); fall back
+      // to a browser-local data URL so the flow never breaks.
+      try {
+        const res = await fetch('/api/farm/photo', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dataUrl: url, landId: target }),
+        })
+        if (res.ok) {
+          const j = await res.json()
+          if (j.publicUrl) url = j.publicUrl
+        }
+      } catch { /* offline / unconfigured — keep the data URL */ }
       if (target === 'form') setFormPhoto(url)
       else persistPhoto(target, url)
     }

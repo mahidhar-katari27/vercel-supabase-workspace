@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { Card, Chip, Counter, DemoTag, Modal, PageHeader, Reveal, spring, Tabs } from '@/components/ui'
 import { bookings, type Booking } from '@/lib/data'
 import { cn, inr, num } from '@/lib/utils'
+import { loadStoredBookings, updateBookingStatus, type BookingSource } from '@/lib/liveStore'
+import { useEffect } from 'react'
 
 const STATUSES = ['Confirmed', 'Pending', 'Completed', 'Cancelled'] as const
 const statusTone: Record<Booking['status'], 'live' | 'demo' | 'info' | 'danger'> = {
@@ -17,6 +19,17 @@ export default function BookingsPage() {
   const [list, setList] = useState<Booking[]>(bookings)
   const [cancel, setCancel] = useState<Booking | null>(null)
   const [toast, setToast] = useState<string | null>(null)
+  const [source, setSource] = useState<BookingSource>('none')
+
+  useEffect(() => {
+    let alive = true
+    loadStoredBookings().then(({ rows, source }) => {
+      if (!alive) return
+      setSource(source)
+      if (rows.length) setList((l) => [...rows, ...l.filter((d) => !rows.some((r) => r.id === d.id))])
+    })
+    return () => { alive = false }
+  }, [])
 
   const filtered = useMemo(() => {
     const f = tab === 'all' ? list : list.filter((b) => b.status === tab)
@@ -44,7 +57,13 @@ export default function BookingsPage() {
         icon="📅"
         title="Smart Booking"
         sub="Every machine, service and consultation you have booked."
-        tag={<DemoTag />}
+        tag={
+          <span className="flex flex-wrap gap-1.5">
+            <DemoTag />
+            {source === 'live' && <Chip tone="live" icon="🔌">Supabase live</Chip>}
+            {source === 'local' && <Chip tone="info" icon="💾">Browser-saved</Chip>}
+          </span>
+        }
       >
         <div className="flex flex-wrap gap-2.5">
           <Link href="/agrirent" className="btn btn-primary">🚜 Book Equipment</Link>

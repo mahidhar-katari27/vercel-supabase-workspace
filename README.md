@@ -207,6 +207,27 @@ see them — `.env.local` is gitignored and never uploaded:
 > bypasses RLS. Run `npm run guard:secrets` before deploying; it is also wired
 > up as a `predeploy` hook.
 
+## Supabase — live connection
+
+Project `zhnroiztfzocjfiegssa` is wired into the app, not just the scripts:
+
+- `agrismart/lib/supabase.ts` — browser client (anon key) + server client
+  (service key, route handlers only). Missing vars ⇒ every caller falls back
+  to the labelled demo dataset.
+- `agrismart/lib/liveStore.ts` — bookings persist to the Postgres `bookings`
+  table when it exists, otherwise to localStorage; the UI chips show
+  "Supabase live" / "Browser-saved" honestly.
+- `POST /api/farm/photo` — crop photos upload to the `crop-photos` Storage
+  bucket with the service key (bucket auto-created; verified writing objects).
+- `GET /api/system/supabase` + the card on `/admin` — live probe (REST latency,
+  tables, buckets, auth users).
+
+**One step remains to make Postgres the source of truth:** apply
+`agrismart/supabase/migrations/0001_core.sql` (bookings + RLS) and
+`0002_location_fields.sql` (location columns) in Supabase Dashboard → SQL
+Editor, or hand the agent the DB password to apply them. Until then bookings
+stay browser-local and the UI says so.
+
 ## Google Maps
 
 AgriSmart 2.0 ships a full Google Maps Platform integration — Smart Map,

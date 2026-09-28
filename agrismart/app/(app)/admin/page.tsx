@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Card, Chip, Counter, Delta, DemoTag, PageHeader, Progress, Reveal, Tabs } from '@/components/ui'
@@ -57,6 +57,8 @@ export default function AdminPage() {
           role-based access control with an audit log.
         </div>
       </PageHeader>
+
+      <SupabaseCard />
 
       {/* ------------------------------------------------------------ stats */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -312,5 +314,33 @@ export default function AdminPage() {
         <Link href="/notifications" className="btn btn-quiet">🔔 Notifications</Link>
       </div>
     </div>
+  )
+}
+
+function SupabaseCard() {
+  const [s, setS] = useState<Record<string, any> | null>(null)
+  useEffect(() => {
+    fetch('/api/system/supabase')
+      .then((r) => r.json())
+      .then(setS)
+      .catch(() => setS({ error: 'probe unreachable' }))
+  }, [])
+  if (!s) return null
+  return (
+    <Card className="mb-6 p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="text-sm font-bold">🔌 Supabase connection</h2>
+        {s.configured === false && <Chip tone="demo">not configured</Chip>}
+        {s.configured && <Chip tone="live" icon="✓">{s.host}</Chip>}
+        {s.configured && (s.bookingsTable ? <Chip tone="live">bookings table live</Chip> : <Chip tone="demo">bookings table pending migration 0001</Chip>)}
+      </div>
+      {s.configured && (
+        <p className="mt-2 text-[11px] leading-relaxed text-muted">
+          REST probe {s.restMs != null ? `${s.restMs} ms` : '—'} · storage buckets:{' '}
+          {Array.isArray(s.storage) ? (s.storage.length ? s.storage.join(', ') : 'none yet') : String(s.storage)} ·
+          auth users: {String(s.authUsers)} · checked {new Date(s.at).toLocaleTimeString()}
+        </p>
+      )}
+    </Card>
   )
 }
