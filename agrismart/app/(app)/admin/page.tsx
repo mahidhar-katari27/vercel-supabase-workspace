@@ -59,6 +59,7 @@ export default function AdminPage() {
       </PageHeader>
 
       <SupabaseCard />
+      <AICard />
 
       {/* ------------------------------------------------------------ stats */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -341,6 +342,44 @@ function SupabaseCard() {
           auth users: {String(s.authUsers)} · checked {new Date(s.at).toLocaleTimeString()}
         </p>
       )}
+    </Card>
+  )
+}
+
+/* ------------------------------------------------ google ai (gemini) card */
+
+type AIProbe = { configured: boolean; model: string; ok: boolean; ms?: number; note?: string; models?: number; modelAvailable?: boolean }
+
+function AICard() {
+  const [d, setD] = useState<AIProbe | null>(null)
+  useEffect(() => {
+    let alive = true
+    fetch('/api/system/ai').then((r) => r.json()).then((j) => { if (alive) setD(j as AIProbe) }).catch(() => { if (alive) setD(null) })
+    return () => { alive = false }
+  }, [])
+  return (
+    <Card className="mt-6">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-lg font-bold"> Google AI (Gemini) connection</h2>
+        {d ? (
+          d.configured && d.ok
+            ? <Chip tone="live" icon="⚡">Live · {d.model}</Chip>
+            : d.configured
+              ? <Chip tone="danger" icon="⚠️">Key set · unreachable</Chip>
+              : <Chip tone="demo" icon="◆">Not configured · demo rules</Chip>
+        ) : <Chip>Probing…</Chip>}
+      </div>
+      {d && (
+        <div className="grid gap-3 text-sm sm:grid-cols-4">
+          <div><p className="text-[10px] font-bold uppercase tracking-wider text-faint">Key</p><p className="font-semibold">{d.configured ? 'GOOGLE_AI_API_KEY set (server-only)' : 'missing'}</p></div>
+          <div><p className="text-[10px] font-bold uppercase tracking-wider text-faint">Model</p><p className="font-semibold">{d.model}{d.modelAvailable === false ? ' (not in account)' : ''}</p></div>
+          <div><p className="text-[10px] font-bold uppercase tracking-wider text-faint">API latency</p><p className="font-semibold tabular-nums">{d.ms ? `${d.ms} ms` : '—'}</p></div>
+          <div><p className="text-[10px] font-bold uppercase tracking-wider text-faint">Fallback</p><p className="font-semibold">Deterministic demo rules, labelled in UI</p></div>
+        </div>
+      )}
+      <p className="mt-3 text-[11px] text-faint">
+        Powers the assistant chat and Crop Doctor vision assist. The key never leaves the server; when unavailable every surface falls back to clearly-labelled demo logic.
+      </p>
     </Card>
   )
 }

@@ -20,7 +20,8 @@
     "git:push": "bash scripts/git-push.sh",
     "check": "bash -c 'npm run check:vercel --silent; echo; npm run check:supabase --silent; echo; npm run check:supabase-sdk --silent; echo; npm run check:supabase-admin --silent'",
     "predeploy": "npm run guard:secrets --silent",
-    "audit:start": "node agrismart/scripts/start-audit.js"
+    "audit:start": "node agrismart/scripts/start-audit.js",
+    "audit:ai": "node agrismart/scripts/ai-audit.js"
   },
   "devDependencies": {
     "vercel": "^59.25.4"

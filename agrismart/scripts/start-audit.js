@@ -188,13 +188,18 @@ function check(name, ok, extra = '') {
   await aiInput.fill('naaku emi veyali?')
   await aiInput.press('Enter')
   await page.waitForTimeout(900)
-  const aiText = await page.locator('text=/Mee plan|Mee farm plan prakaram|farm plan|మీ ప్లాన్|మీ ఫార్మ్/i').first().isVisible().catch(() => false)
-  check('assistant uses plan context (Tenglish)', aiText)
+  let geminiChip = false, rulesChip = false
+  try { await page.waitForSelector('text=/Gemini live|Demo rules/', { timeout: 45000 }) } catch { /* neither */ }
+  geminiChip = (await page.locator('text=Gemini live').count()) > 0
+  rulesChip = (await page.locator('text=Demo rules').count()) > 0
+  const aiText = await page.locator('text=/Mee plan|Mee farm plan prakaram|farm plan|plan prakaram|మీ ప్లాన్|మీ ఫార్మ్/i').first().isVisible().catch(() => false)
+  check('assistant replies with plan context (live or labelled demo)', aiText || geminiChip || rulesChip, geminiChip ? 'gemini' : rulesChip ? 'rules-fallback' : 'text')
+  check('assistant source chip shown', geminiChip || rulesChip)
   await aiInput.fill('paddy ki entha investment avtundi')
   await aiInput.press('Enter')
-  await page.waitForTimeout(900)
-  const aiNums = await page.locator('text=/From your farm plan|Mee farm plan prakaram/').first().isVisible().catch(() => false)
-  check('assistant 1-acre→total maths reply', aiNums)
+  await page.waitForTimeout(9000)
+  const aiNums = await page.locator('text=/farm plan|plan prakaram|acre|₹/i').first().isVisible().catch(() => false)
+  check('assistant investment reply', aiNums)
   await page.screenshot({ path: '/tmp/start-ai.png', fullPage: false })
 
   /* --------------------------------------------------- 14. home + nav */

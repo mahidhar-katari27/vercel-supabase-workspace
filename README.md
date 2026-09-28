@@ -276,6 +276,41 @@ npm run audit:start            # end-to-end playwright audit (61 checks)
 node agrismart/scripts/start-audit.js https://agrismart-two-neon.vercel.app
 ```
 
+## Google AI (Gemini) — live assistant & vision
+
+`GOOGLE_AI_API_KEY` (server-only env; never shipped to the browser) powers:
+
+- **Assistant chat** — `POST /api/ai/chat` proxies Gemini with the saved Farm
+  Plan as context; replies mirror the farmer's register (English / Telugu /
+  Tenglish). Every bubble is chipped **⚡ Gemini live** or **◆ Demo rules**.
+- **Crop Doctor vision assist** — `POST /api/ai/vision` sends the uploaded leaf
+  photo to Gemini (structured JSON: issue / risk / confidence / symptoms /
+  steps) and renders it as a clearly-labelled *second opinion* card next to the
+  deterministic assessment.
+- **Admin probe** — `GET /api/system/ai` + admin card show key/model/latency.
+
+Resilience & honesty: `lib/gemini.ts` walks a model fallback chain
+(3.7-flash → 3.8-flash → flash-latest) on 429/503 with breathing room, plus one
+patient retry. The free-tier quota can exhaust mid-demo — whenever Gemini is
+unreachable every surface falls back to the deterministic demo logic and says
+so in the UI. Nothing is ever presented as live when it isn't.
+
+```bash
+npm run audit:ai               # playwright audit of the AI wiring
+```
+
+## Cinematic logo intro (6.000 s)
+
+`intro/agrismart-intro.html` is a deterministic, frame-addressable canvas
+motion-graphics engine (particles → digital farmland push → kinetic typography
+WEATHER/CROP/WATER/MARKET morphing into data-viz → convergence into the
+agri-tech mark → AGRISMART wordmark + tagline). `intro/render.js` renders
+180 PNG frames in headless Chromium and encodes H.264 via ffmpeg-static:
+
+```bash
+node intro/render.js           # → intro/agrismart-logo-intro.mp4 (1920×1080, 30 fps, exactly 6.00 s)
+```
+
 ## Files
 
 | File | Purpose |

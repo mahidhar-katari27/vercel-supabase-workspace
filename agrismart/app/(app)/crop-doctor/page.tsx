@@ -28,6 +28,34 @@ export default function CropDoctorPage() {
   const [landId, setLandId] = useState('')
   const [dxHistory, setDxHistory] = useState<Array<{ id: string; landId: string; date: string; issue: string; risk: string; confidence: number }>>([])
   const loggedRef = useRef<string | null>(null)
+  const [vision, setVision] = useState<null | {
+    issue: string; risk: string; confidence: number; symptoms: string[]; steps: string[]; cropGuess?: string
+  }>(null)
+
+  // Optional live-model second opinion (Gemini vision). The deterministic
+  // assessment above always remains; this only ADDS a clearly-labelled assist.
+  const enhanceWithGemini = (src: string) => {
+    ;(async () => {
+      try {
+        const blob = await (await fetch(src)).blob()
+        if (!blob.type.startsWith('image/') || blob.size > 4_000_000) return
+        const dataUrl = await new Promise<string>((res, rej) => {
+          const r = new FileReader()
+          r.onload = () => res(String(r.result))
+          r.onerror = () => rej(new Error('read failed'))
+          r.readAsDataURL(blob)
+        })
+        const landLabel = landOpts.find((o) => o.id === landId)?.label
+        const resp = await fetch('/api/ai/vision', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: dataUrl, context: landLabel }),
+        })
+        if (!resp.ok) return
+        const j = await resp.json()
+        if (j?.source === 'gemini' && j.issue) setVision(j)
+      } catch { /* stay on the deterministic assessment */ }
+    })()
+  }
 
   useEffect(() => {
     const sync = () => {
@@ -65,6 +93,7 @@ export default function CropDoctorPage() {
     timers.current = []
     setImg(file)
     setResult(null)
+    setVision(null)
     setFollowUp(null)
     setStage('analysing')
     setStep(0)
@@ -78,11 +107,13 @@ export default function CropDoctorPage() {
       window.setTimeout(() => {
         setResult(analyseCrop(file.name, file.bytes))
         setStage('done')
+        enhanceWithGemini(file.src)
       }, 2750),
     )
   }, [])
 
   const reset = useCallback(() => {
+    setVision(null)
     timers.current.forEach(clearTimeout)
     setStage('idle'); setStep(0); setResult(null); setImg(null); setFollowUp(null)
     if (fileRef.current) fileRef.current.value = ''
@@ -405,6 +436,35 @@ export default function CropDoctorPage() {
                     </div>
                   </div>
                 </Card>
+
+                {vision && (
+                  <Card className="mt-5 border-leaf-400/40 bg-leaf-400/5">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="text-sm font-bold">
+                        ⚡ Gemini vision assist
+                        <span className="ml-2 rounded-full bg-leaf-400/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-leaf-600 dark:text-leaf-300">Live model</span>
+                      </h3>
+                      <Chip tone={vision.risk === 'HIGH' ? 'danger' : vision.risk === 'MEDIUM' ? 'demo' : 'ok'}>
+                        {vision.risk} risk · {vision.confidence}% match
+                      </Chip>
+                    </div>
+                    <p className="font-display text-lg font-black">{vision.issue}</p>
+                    {vision.cropGuess && <p className="mt-0.5 text-xs text-muted">Looks like: {vision.cropGuess}</p>}
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <h4 className="mb-1.5 text-xs font-bold">Visible symptoms</h4>
+                        <ul className="space-y-1 text-xs text-muted">{vision.symptoms.map((sy) => <li key={sy}>• {sy}</li>)}</ul>
+                      </div>
+                      <div>
+                        <h4 className="mb-1.5 text-xs font-bold">Suggested next steps</h4>
+                        <ol className="space-y-1 text-xs text-muted">{vision.steps.map((st, i) => <li key={st}>{i + 1}. {st}</li>)}</ol>
+                      </div>
+                    </div>
+                    <p className="mt-3 border-t border-line/60 pt-2 text-[11px] leading-snug text-faint">
+                      ◆ AI assistance only — a photo can suggest patterns, never a lab-grade diagnosis. Confirm with an expert before treating.
+                    </p>
+                  </Card>
+                )}
 
                 {/* Follow-ups */}
                 <Card className="mt-5">

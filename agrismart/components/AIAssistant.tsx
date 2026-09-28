@@ -4,10 +4,11 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { assistantReply, assistantDisclaimer, type Reply } from '@/lib/ai'
+import { loadPlan } from '@/lib/farmPlan'
 import { cn } from '@/lib/utils'
 import { Avatar, spring } from './ui'
 
-type Msg = { id: number; from: 'user' | 'ai'; text: string; reply?: Reply }
+type Msg = { id: number; from: 'user' | 'ai'; text: string; reply?: Reply; src?: 'gemini' | 'rules' }
 
 const STARTERS = [
   '3 acres paddy ki entha investment?',
@@ -54,12 +55,38 @@ export default function AIAssistant() {
     setMsgs((m) => [...m, { id: uid, from: 'user', text: clean }])
     setInput('')
     setThinking(true)
-    // Short delay reads as "thinking" without feeling slow.
-    window.setTimeout(() => {
-      const reply = assistantReply(clean)
-      setMsgs((m) => [...m, { id: idRef.current++, from: 'ai', text: reply.text, reply }])
+    // Live Gemini when configured; deterministic demo rules as honest fallback.
+    window.setTimeout(async () => {
+      let payload: (Reply & { source?: 'gemini' | 'rules' }) | null = null
+      try {
+        const res = await fetch('/api/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: clean, plan: loadPlan() }),
+        })
+        if (res.ok) payload = (await res.json()) as Reply & { source?: 'gemini' | 'rules' }
+      } catch { /* offline / route missing → rules below */ }
+      if (!payload?.text) payload = { ...assistantReply(clean), source: 'rules' }
+      // One quiet retry when the live model was rate-limited — spaced calls
+      // usually get through; otherwise the labelled demo reply stands.
+      if (payload.source !== 'gemini') {
+        await new Promise((r) => setTimeout(r, 1500))
+        try {
+          const res2 = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: clean, plan: loadPlan() }),
+          })
+          if (res2.ok) {
+            const p2 = (await res2.json()) as Reply & { source?: 'gemini' | 'rules' }
+            if (p2?.text && p2.source === 'gemini') payload = p2
+          }
+        } catch { /* keep first payload */ }
+      }
+      const src = payload.source === 'gemini' ? 'gemini' : 'rules'
+      setMsgs((m) => [...m, { id: idRef.current++, from: 'ai', text: payload!.text!, reply: payload as Reply, src }])
       setThinking(false)
-    }, 520)
+    }, 420)
   }, [])
 
   /* --------------------------------------------------------- voice input */
@@ -213,6 +240,12 @@ export default function AIAssistant() {
                           ? 'rounded-tr-lg bg-leaf-gradient text-white shadow-glow'
                           : 'glass rounded-tl-lg',
                       )}>
+                        {m.from === 'ai' && (
+                          <span className={cn('mb-1.5 block w-fit rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider',
+                            m.src === 'gemini' ? 'bg-leaf-400/15 text-leaf-600 dark:text-leaf-300' : 'bg-gold-400/15 text-gold-600 dark:text-gold-400')}>
+                            {m.src === 'gemini' ? '⚡ Gemini live' : '◆ Demo rules'}
+                          </span>
+                        )}
                         {m.text}
                         {m.reply?.navigate && (
                           <Link href={m.reply.navigate.href}
